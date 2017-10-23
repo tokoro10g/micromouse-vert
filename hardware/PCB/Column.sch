@@ -1,0 +1,302 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:stm32
+LIBS:tps6124x
+LIBS:ICM-20602
+LIBS:TPS62130RGTR
+LIBS:tar5sb
+LIBS:jst-sh4
+LIBS:drv8833
+LIBS:micro-sdcard
+LIBS:resistorarray_4iso
+LIBS:vbat
+LIBS:lt1963a
+LIBS:mpu-6500
+LIBS:stm32f405rg
+LIBS:m03_half_lock
+LIBS:tc4427a
+LIBS:photodiode
+LIBS:tokoro_misc
+LIBS:skrkaee010
+LIBS:TLV316IDCKR
+LIBS:MAX4230AXK
+LIBS:micromouse
+LIBS:Column-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 12
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Sheet
+S 1475 3475 1125 375 
+U 5961FC2A
+F0 "OpticalSensor_FRONT" 60
+F1 "optical_sensor.sch" 60
+F2 "IRLED_PULSE" I R 2600 3600 60 
+F3 "IR_SENS" I R 2600 3725 60 
+$EndSheet
+$Sheet
+S 7400 4800 625  1050
+U 5961FC45
+F0 "Motor_L" 60
+F1 "motor.sch" 60
+F2 "ENCRB" O L 7400 5675 60 
+F3 "ENCRA" O L 7400 5575 60 
+F4 "ENCLB" O L 7400 5475 60 
+F5 "ENCLA" O L 7400 5375 60 
+F6 "MOTOR_RA" I L 7400 5150 60 
+F7 "MOTOR_RB" I L 7400 5250 60 
+F8 "MOTOR_LA" I L 7400 4950 60 
+F9 "MOTOR_LB" I L 7400 5050 60 
+$EndSheet
+$Sheet
+S 2850 3075 575  200 
+U 5961FC54
+F0 "Buzzer" 60
+F1 "buzzer.sch" 60
+F2 "BUZZER" I R 3425 3175 60 
+$EndSheet
+$Sheet
+S 1575 2500 725  150 
+U 5961FC66
+F0 "Power" 60
+F1 "power.sch" 60
+$EndSheet
+$Sheet
+S 7400 3325 625  550 
+U 5961FC84
+F0 "IMU_1" 60
+F1 "imu.sch" 60
+F2 "IMU_SCK" I L 7400 3450 60 
+F3 "IMU_MOSI" I L 7400 3650 60 
+F4 "IMU_MISO" I L 7400 3550 60 
+F5 "IMU_NSS" I L 7400 3750 60 
+$EndSheet
+Wire Wire Line
+	3800 3175 3425 3175
+$Sheet
+S 1475 4025 1125 375 
+U 59E0D601
+F0 "OpticalSensor_IRLB" 60
+F1 "optical_sensor.sch" 60
+F2 "IRLED_PULSE" I R 2600 4150 60 
+F3 "IR_SENS" I R 2600 4275 60 
+$EndSheet
+$Sheet
+S 1475 4575 1125 375 
+U 59E0D6AE
+F0 "OpticalSensor_IRRB" 60
+F1 "optical_sensor.sch" 60
+F2 "IRLED_PULSE" I R 2600 4700 60 
+F3 "IR_SENS" I R 2600 4825 60 
+$EndSheet
+Wire Wire Line
+	3125 3600 3125 4700
+Wire Wire Line
+	3125 3600 2600 3600
+Wire Wire Line
+	2600 4150 3600 4150
+Connection ~ 3125 4150
+Wire Wire Line
+	3125 4700 2600 4700
+Wire Wire Line
+	2600 3725 3500 3725
+Wire Wire Line
+	3500 3725 3500 4450
+Wire Wire Line
+	3500 4450 3800 4450
+Wire Wire Line
+	2600 4275 3425 4275
+Wire Wire Line
+	3425 4275 3425 4550
+Wire Wire Line
+	3425 4550 3800 4550
+Wire Wire Line
+	2600 4825 3425 4825
+Wire Wire Line
+	3425 4825 3425 4650
+Wire Wire Line
+	3425 4650 3800 4650
+Wire Wire Line
+	3600 4150 3600 4350
+Wire Wire Line
+	3600 4350 3800 4350
+$Sheet
+S 1475 5125 1125 325 
+U 59E0E93D
+F0 "OpticalSensor_IRRF" 60
+F1 "optical_sensor.sch" 60
+F2 "IRLED_PULSE" I R 2600 5250 60 
+F3 "IR_SENS" I R 2600 5350 60 
+$EndSheet
+$Sheet
+S 1475 5625 1125 325 
+U 59E0EA00
+F0 "OpticalSensor_IRLF" 60
+F1 "optical_sensor.sch" 60
+F2 "IRLED_PULSE" I R 2600 5750 60 
+F3 "IR_SENS" I R 2600 5850 60 
+$EndSheet
+Wire Wire Line
+	2600 5350 3500 5350
+Wire Wire Line
+	3500 5350 3500 4875
+Wire Wire Line
+	3500 4875 3800 4875
+Wire Wire Line
+	2600 5850 3600 5850
+Wire Wire Line
+	3600 5850 3600 4975
+Wire Wire Line
+	3600 4975 3800 4975
+Wire Wire Line
+	2600 5250 3125 5250
+Wire Wire Line
+	3125 4775 3125 5750
+Wire Wire Line
+	3125 5750 2600 5750
+Wire Wire Line
+	3800 4775 3125 4775
+Connection ~ 3125 5250
+$Sheet
+S 7400 4050 625  550 
+U 59E155CE
+F0 "IMU_2" 60
+F1 "imu.sch" 60
+F2 "IMU_SCK" I L 7400 4175 60 
+F3 "IMU_MOSI" I L 7400 4375 60 
+F4 "IMU_MISO" I L 7400 4275 60 
+F5 "IMU_NSS" I L 7400 4475 60 
+$EndSheet
+Wire Wire Line
+	6800 3600 7100 3600
+Wire Wire Line
+	7100 3600 7100 3450
+Wire Wire Line
+	7100 3450 7400 3450
+Wire Wire Line
+	6800 3700 7175 3700
+Wire Wire Line
+	7175 3700 7175 3550
+Wire Wire Line
+	7175 3550 7400 3550
+Wire Wire Line
+	6800 3800 7250 3800
+Wire Wire Line
+	7250 3800 7250 3650
+Wire Wire Line
+	7250 3650 7400 3650
+Wire Wire Line
+	6800 3900 7325 3900
+Wire Wire Line
+	7325 3900 7325 3750
+Wire Wire Line
+	7325 3750 7400 3750
+Wire Wire Line
+	6800 4325 7100 4325
+Wire Wire Line
+	7100 4325 7100 4475
+Wire Wire Line
+	7100 4475 7400 4475
+Wire Wire Line
+	6800 4225 7175 4225
+Wire Wire Line
+	7175 4225 7175 4375
+Wire Wire Line
+	7175 4375 7400 4375
+Wire Wire Line
+	6800 4125 7250 4125
+Wire Wire Line
+	7250 4125 7250 4275
+Wire Wire Line
+	7250 4275 7400 4275
+Wire Wire Line
+	6800 4025 7325 4025
+Wire Wire Line
+	7325 4025 7325 4175
+Wire Wire Line
+	7325 4175 7400 4175
+Wire Wire Line
+	6800 4950 7400 4950
+Wire Wire Line
+	7400 5050 6800 5050
+Wire Wire Line
+	6800 5150 7400 5150
+Wire Wire Line
+	7400 5250 6800 5250
+Wire Wire Line
+	6800 5375 7400 5375
+Wire Wire Line
+	7400 5475 6800 5475
+Wire Wire Line
+	6800 5575 7400 5575
+Wire Wire Line
+	7400 5675 6800 5675
+$Sheet
+S 3800 3075 3000 2850
+U 5961FBE2
+F0 "MCU" 60
+F1 "mcu.sch" 60
+F2 "IMU2_SCK" O R 6800 4025 60 
+F3 "IMU2_MISO" I R 6800 4125 60 
+F4 "IMU2_MOSI" O R 6800 4225 60 
+F5 "IMU1_SCK" O R 6800 3600 60 
+F6 "IMU1_MISO" I R 6800 3700 60 
+F7 "IMU1_MOSI" O R 6800 3800 60 
+F8 "ENC_LA" I R 6800 5375 60 
+F9 "ENC_LB" I R 6800 5475 60 
+F10 "ENC_RB" I R 6800 5675 60 
+F11 "ENC_RA" I R 6800 5575 60 
+F12 "IRLED1" O L 3800 4775 60 
+F13 "IRLED2" O L 3800 4350 60 
+F14 "BUZZER" O L 3800 3175 60 
+F15 "SENS_IRLB" I L 3800 4550 60 
+F16 "SENS_IRRF" I L 3800 4875 60 
+F17 "SENS_IRRB" I L 3800 4650 60 
+F18 "MOTOR_LA" O R 6800 4950 60 
+F19 "MOTOR_LB" O R 6800 5050 60 
+F20 "MOTOR_RA" O R 6800 5150 60 
+F21 "MOTOR_RB" O R 6800 5250 60 
+F22 "SENS_IRLF" I L 3800 4975 60 
+F23 "IMU1_NSS" O R 6800 3900 60 
+F24 "IMU2_NSS" O R 6800 4325 60 
+F25 "SENS_FRONT" I L 3800 4450 60 
+$EndSheet
+$EndSCHEMATC

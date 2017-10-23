@@ -1,0 +1,427 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:stm32
+LIBS:tps6124x
+LIBS:ICM-20602
+LIBS:TPS62130RGTR
+LIBS:tar5sb
+LIBS:jst-sh4
+LIBS:drv8833
+LIBS:micro-sdcard
+LIBS:resistorarray_4iso
+LIBS:vbat
+LIBS:lt1963a
+LIBS:mpu-6500
+LIBS:stm32f405rg
+LIBS:m03_half_lock
+LIBS:tc4427a
+LIBS:photodiode
+LIBS:tokoro_misc
+LIBS:skrkaee010
+LIBS:TLV316IDCKR
+LIBS:MAX4230AXK
+LIBS:micromouse
+LIBS:Column-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 7 12
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L TLV316IDCKR U2
+U 1 1 59D52F4F
+P 6250 4575
+AR Path="/5961FC2A/59D52F4F" Ref="U2"  Part="1" 
+AR Path="/59E0D601/59D52F4F" Ref="U3"  Part="1" 
+AR Path="/59E0D6AE/59D52F4F" Ref="U4"  Part="1" 
+AR Path="/59E0E93D/59D52F4F" Ref="U5"  Part="1" 
+AR Path="/59E0EA00/59D52F4F" Ref="U6"  Part="1" 
+F 0 "U3" H 5550 4914 50  0000 L BNN
+F 1 "TLV316IDCKR" H 5549 4117 50  0000 L BNN
+F 2 "TLV316IDCKR:SOT65P210X110-5N" H 6250 4575 50  0001 L BNN
+F 3 "TLV316IDCKR" H 6250 4575 50  0001 L BNN
+F 4 "SC-70-5 Texas Instruments" H 6250 4575 50  0001 L BNN "Package"
+F 5 "Good" H 6250 4575 50  0001 L BNN "Availability"
+F 6 "Texas Instruments" H 6250 4575 50  0001 L BNN "MF"
+F 7 "0.43 USD" H 6250 4575 50  0001 L BNN "Price"
+F 8 "10-MHz%2C Low-Noise%2C RRIO%2C CMOS Operational Amplifier for Cost-Sensitive Systems 5-SC70 -40 to 125" H 6250 4575 50  0001 L BNN "Description"
+	1    6250 4575
+	1    0    0    -1  
+$EndComp
+$Comp
+L PHOTODIODE D8
+U 1 1 59DDDC92
+P 4650 4725
+AR Path="/5961FC2A/59DDDC92" Ref="D8"  Part="1" 
+AR Path="/59E0D601/59DDDC92" Ref="D10"  Part="1" 
+AR Path="/59E0D6AE/59DDDC92" Ref="D12"  Part="1" 
+AR Path="/59E0E93D/59DDDC92" Ref="D14"  Part="1" 
+AR Path="/59E0EA00/59DDDC92" Ref="D16"  Part="1" 
+F 0 "D10" H 4650 4825 50  0000 C CNN
+F 1 "VEMD2020X01" H 4650 4625 50  0000 C CNN
+F 2 "Vishay_OPTO:VEMD2020" H 4650 4725 60  0001 C CNN
+F 3 "" H 4650 4725 60  0000 C CNN
+	1    4650 4725
+	0    1    1    0   
+$EndComp
+$Comp
+L R R6
+U 1 1 59DDDD27
+P 4650 4300
+AR Path="/5961FC2A/59DDDD27" Ref="R6"  Part="1" 
+AR Path="/59E0D601/59DDDD27" Ref="R16"  Part="1" 
+AR Path="/59E0D6AE/59DDDD27" Ref="R20"  Part="1" 
+AR Path="/59E0E93D/59DDDD27" Ref="R24"  Part="1" 
+AR Path="/59E0EA00/59DDDD27" Ref="R28"  Part="1" 
+F 0 "R16" V 4730 4300 50  0000 C CNN
+F 1 "500k" V 4650 4300 50  0000 C CNN
+F 2 "Resistors_SMD:R_0201_NoSilk" V 4580 4300 50  0001 C CNN
+F 3 "" H 4650 4300 50  0001 C CNN
+	1    4650 4300
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R7
+U 1 1 59DDDD5C
+P 5875 5175
+AR Path="/5961FC2A/59DDDD5C" Ref="R7"  Part="1" 
+AR Path="/59E0D601/59DDDD5C" Ref="R17"  Part="1" 
+AR Path="/59E0D6AE/59DDDD5C" Ref="R21"  Part="1" 
+AR Path="/59E0E93D/59DDDD5C" Ref="R25"  Part="1" 
+AR Path="/59E0EA00/59DDDD5C" Ref="R29"  Part="1" 
+F 0 "R17" V 5955 5175 50  0000 C CNN
+F 1 "1M" V 5875 5175 50  0000 C CNN
+F 2 "Resistors_SMD:R_0201_NoSilk" V 5805 5175 50  0001 C CNN
+F 3 "" H 5875 5175 50  0001 C CNN
+	1    5875 5175
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	4650 4525 4825 4525
+Wire Wire Line
+	4825 4525 4825 4675
+Wire Wire Line
+	4825 4775 4825 4925
+Wire Wire Line
+	4825 4925 4650 4925
+Wire Wire Line
+	4650 4450 4650 4525
+$Comp
+L GND #PWR01
+U 1 1 59DDDEBB
+P 4650 4150
+AR Path="/5961FC2A/59DDDEBB" Ref="#PWR01"  Part="1" 
+AR Path="/59E0D601/59DDDEBB" Ref="#PWR043"  Part="1" 
+AR Path="/59E0D6AE/59DDDEBB" Ref="#PWR048"  Part="1" 
+AR Path="/59E0E93D/59DDDEBB" Ref="#PWR053"  Part="1" 
+AR Path="/59E0EA00/59DDDEBB" Ref="#PWR058"  Part="1" 
+F 0 "#PWR058" H 4650 3900 50  0001 C CNN
+F 1 "GND" H 4650 4000 50  0000 C CNN
+F 2 "" H 4650 4150 50  0001 C CNN
+F 3 "" H 4650 4150 50  0001 C CNN
+	1    4650 4150
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	7150 4675 7150 5375
+Wire Wire Line
+	7150 5175 6025 5175
+Wire Wire Line
+	4650 5175 5725 5175
+Wire Wire Line
+	4650 4925 4650 5375
+$Comp
+L LED D7
+U 1 1 59DDE40B
+P 3775 4600
+AR Path="/5961FC2A/59DDE40B" Ref="D7"  Part="1" 
+AR Path="/59E0D601/59DDE40B" Ref="D9"  Part="1" 
+AR Path="/59E0D6AE/59DDE40B" Ref="D11"  Part="1" 
+AR Path="/59E0E93D/59DDE40B" Ref="D13"  Part="1" 
+AR Path="/59E0EA00/59DDE40B" Ref="D15"  Part="1" 
+F 0 "D9" H 3775 4700 50  0000 C CNN
+F 1 "VSMB294008G" H 3775 4500 50  0000 C CNN
+F 2 "Vishay_OPTO:VSMB294008G" H 3775 4600 50  0001 C CNN
+F 3 "" H 3775 4600 50  0001 C CNN
+	1    3775 4600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L R R5
+U 1 1 59DDE73D
+P 3775 4300
+AR Path="/5961FC2A/59DDE73D" Ref="R5"  Part="1" 
+AR Path="/59E0D601/59DDE73D" Ref="R15"  Part="1" 
+AR Path="/59E0D6AE/59DDE73D" Ref="R19"  Part="1" 
+AR Path="/59E0E93D/59DDE73D" Ref="R23"  Part="1" 
+AR Path="/59E0EA00/59DDE73D" Ref="R27"  Part="1" 
+F 0 "R15" V 3855 4300 50  0000 C CNN
+F 1 "20" V 3775 4300 50  0000 C CNN
+F 2 "Resistors_SMD:R_0201_NoSilk" V 3705 4300 50  0001 C CNN
+F 3 "" H 3775 4300 50  0001 C CNN
+	1    3775 4300
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR02
+U 1 1 59DDE786
+P 3775 5300
+AR Path="/5961FC2A/59DDE786" Ref="#PWR02"  Part="1" 
+AR Path="/59E0D601/59DDE786" Ref="#PWR044"  Part="1" 
+AR Path="/59E0D6AE/59DDE786" Ref="#PWR049"  Part="1" 
+AR Path="/59E0E93D/59DDE786" Ref="#PWR054"  Part="1" 
+AR Path="/59E0EA00/59DDE786" Ref="#PWR059"  Part="1" 
+F 0 "#PWR059" H 3775 5050 50  0001 C CNN
+F 1 "GND" H 3775 5150 50  0000 C CNN
+F 2 "" H 3775 5300 50  0001 C CNN
+F 3 "" H 3775 5300 50  0001 C CNN
+	1    3775 5300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Q_NMOS_GSD Q1
+U 1 1 59DF027F
+P 3675 4950
+AR Path="/5961FC2A/59DF027F" Ref="Q1"  Part="1" 
+AR Path="/59E0D601/59DF027F" Ref="Q3"  Part="1" 
+AR Path="/59E0D6AE/59DF027F" Ref="Q4"  Part="1" 
+AR Path="/59E0E93D/59DF027F" Ref="Q5"  Part="1" 
+AR Path="/59E0EA00/59DF027F" Ref="Q6"  Part="1" 
+F 0 "Q3" H 3875 5000 50  0000 L CNN
+F 1 "NTK3134NT1G" H 3875 4900 50  0000 L CNN
+F 2 "misc:SOT-723" H 3875 5050 50  0001 C CNN
+F 3 "" H 3675 4950 50  0001 C CNN
+	1    3675 4950
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R4
+U 1 1 59DF0578
+P 3400 5100
+AR Path="/5961FC2A/59DF0578" Ref="R4"  Part="1" 
+AR Path="/59E0D601/59DF0578" Ref="R14"  Part="1" 
+AR Path="/59E0D6AE/59DF0578" Ref="R18"  Part="1" 
+AR Path="/59E0E93D/59DF0578" Ref="R22"  Part="1" 
+AR Path="/59E0EA00/59DF0578" Ref="R26"  Part="1" 
+F 0 "R14" V 3480 5100 50  0000 C CNN
+F 1 "47k" V 3400 5100 50  0000 C CNN
+F 2 "Resistors_SMD:R_0201_NoSilk" V 3330 5100 50  0001 C CNN
+F 3 "" H 3400 5100 50  0001 C CNN
+	1    3400 5100
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C10
+U 1 1 59DF174A
+P 5875 5375
+AR Path="/5961FC2A/59DF174A" Ref="C10"  Part="1" 
+AR Path="/59E0D601/59DF174A" Ref="C25"  Part="1" 
+AR Path="/59E0D6AE/59DF174A" Ref="C28"  Part="1" 
+AR Path="/59E0E93D/59DF174A" Ref="C31"  Part="1" 
+AR Path="/59E0EA00/59DF174A" Ref="C34"  Part="1" 
+F 0 "C25" H 5900 5475 50  0000 L CNN
+F 1 "22p" H 5900 5275 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0201_NoSilk" H 5913 5225 50  0001 C CNN
+F 3 "" H 5875 5375 50  0001 C CNN
+	1    5875 5375
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7150 5375 6025 5375
+Connection ~ 7150 5175
+Wire Wire Line
+	4650 5375 5725 5375
+Connection ~ 4650 5175
+Wire Wire Line
+	3775 5150 3775 5300
+Wire Wire Line
+	3475 4950 3400 4950
+Wire Wire Line
+	3400 5250 3775 5250
+Connection ~ 3775 5250
+Wire Wire Line
+	3400 4950 3400 4850
+Wire Wire Line
+	3400 4850 3150 4850
+Wire Wire Line
+	7150 4675 7375 4675
+Text HLabel 3150 4850 0    60   Input ~ 0
+IRLED_PULSE
+Text HLabel 7375 4675 2    60   Input ~ 0
+IR_SENS
+$Comp
+L C C9
+U 1 1 59E0B330
+P 5100 4775
+AR Path="/5961FC2A/59E0B330" Ref="C9"  Part="1" 
+AR Path="/59E0D601/59E0B330" Ref="C24"  Part="1" 
+AR Path="/59E0D6AE/59E0B330" Ref="C27"  Part="1" 
+AR Path="/59E0E93D/59E0B330" Ref="C30"  Part="1" 
+AR Path="/59E0EA00/59E0B330" Ref="C33"  Part="1" 
+F 0 "C24" H 5125 4875 50  0000 L CNN
+F 1 "0.01u(NC)" H 5125 4675 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0201_NoSilk" H 5138 4625 50  0001 C CNN
+F 3 "" H 5100 4775 50  0001 C CNN
+	1    5100 4775
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5350 4775 5250 4775
+Wire Wire Line
+	4825 4775 4950 4775
+Wire Wire Line
+	4825 4675 5350 4675
+$Comp
+L +5V #PWR045
+U 1 1 59E26EB6
+P 3775 4150
+AR Path="/59E0D601/59E26EB6" Ref="#PWR045"  Part="1" 
+AR Path="/59E0E93D/59E26EB6" Ref="#PWR055"  Part="1" 
+AR Path="/59E0EA00/59E26EB6" Ref="#PWR060"  Part="1" 
+AR Path="/5961FC2A/59E26EB6" Ref="#PWR03"  Part="1" 
+AR Path="/59E0D6AE/59E26EB6" Ref="#PWR050"  Part="1" 
+F 0 "#PWR060" H 3775 4000 50  0001 C CNN
+F 1 "+5V" H 3775 4290 50  0000 C CNN
+F 2 "" H 3775 4150 50  0001 C CNN
+F 3 "" H 3775 4150 50  0001 C CNN
+	1    3775 4150
+	1    0    0    -1  
+$EndComp
+Connection ~ 7150 4675
+Connection ~ 4650 4925
+Connection ~ 4650 4525
+$Comp
+L TEST TP4
+U 1 1 59E276EE
+P 7250 4675
+AR Path="/59E0D601/59E276EE" Ref="TP4"  Part="1" 
+AR Path="/59E0E93D/59E276EE" Ref="TP8"  Part="1" 
+AR Path="/59E0EA00/59E276EE" Ref="TP10"  Part="1" 
+AR Path="/5961FC2A/59E276EE" Ref="TP2"  Part="1" 
+AR Path="/59E0D6AE/59E276EE" Ref="TP6"  Part="1" 
+F 0 "TP4" H 7250 4975 50  0000 C BNN
+F 1 "TEST" H 7250 4925 50  0000 C CNN
+F 2 "Measurement_Points:Measurement_Point_Round-SMD-Pad_Small" H 7250 4675 50  0001 C CNN
+F 3 "" H 7250 4675 50  0001 C CNN
+	1    7250 4675
+	-1   0    0    1   
+$EndComp
+Connection ~ 7250 4675
+$Comp
+L TEST TP3
+U 1 1 59E27A33
+P 3400 4850
+AR Path="/59E0D601/59E27A33" Ref="TP3"  Part="1" 
+AR Path="/59E0E93D/59E27A33" Ref="TP7"  Part="1" 
+AR Path="/59E0EA00/59E27A33" Ref="TP9"  Part="1" 
+AR Path="/5961FC2A/59E27A33" Ref="TP1"  Part="1" 
+AR Path="/59E0D6AE/59E27A33" Ref="TP5"  Part="1" 
+F 0 "TP3" H 3400 5150 50  0000 C BNN
+F 1 "TEST" H 3400 5100 50  0000 C CNN
+F 2 "Measurement_Points:Measurement_Point_Round-SMD-Pad_Small" H 3400 4850 50  0001 C CNN
+F 3 "" H 3400 4850 50  0001 C CNN
+	1    3400 4850
+	1    0    0    -1  
+$EndComp
+Connection ~ 3400 4950
+Connection ~ 3400 4850
+$Comp
+L C C35
+U 1 1 59E29B74
+P 7475 4425
+AR Path="/59E0EA00/59E29B74" Ref="C35"  Part="1" 
+AR Path="/5961FC2A/59E29B74" Ref="C11"  Part="1" 
+AR Path="/59E0D601/59E29B74" Ref="C26"  Part="1" 
+AR Path="/59E0D6AE/59E29B74" Ref="C29"  Part="1" 
+AR Path="/59E0E93D/59E29B74" Ref="C32"  Part="1" 
+F 0 "C26" H 7500 4525 50  0000 L CNN
+F 1 "0.1u" H 7500 4325 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0201_NoSilk" H 7513 4275 50  0001 C CNN
+F 3 "" H 7475 4425 50  0001 C CNN
+	1    7475 4425
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7475 4275 7300 4275
+Wire Wire Line
+	7300 4275 7300 4375
+Wire Wire Line
+	7300 4375 7150 4375
+Wire Wire Line
+	7150 4475 7300 4475
+Wire Wire Line
+	7300 4475 7300 4575
+Wire Wire Line
+	7300 4575 7650 4575
+$Comp
+L VDDA #PWR061
+U 1 1 59E29C63
+P 7475 4275
+AR Path="/59E0EA00/59E29C63" Ref="#PWR061"  Part="1" 
+AR Path="/5961FC2A/59E29C63" Ref="#PWR04"  Part="1" 
+AR Path="/59E0D601/59E29C63" Ref="#PWR046"  Part="1" 
+AR Path="/59E0D6AE/59E29C63" Ref="#PWR051"  Part="1" 
+AR Path="/59E0E93D/59E29C63" Ref="#PWR056"  Part="1" 
+F 0 "#PWR061" H 7475 4125 50  0001 C CNN
+F 1 "VDDA" H 7475 4425 50  0000 C CNN
+F 2 "" H 7475 4275 50  0001 C CNN
+F 3 "" H 7475 4275 50  0001 C CNN
+	1    7475 4275
+	1    0    0    -1  
+$EndComp
+$Comp
+L GNDA #PWR062
+U 1 1 59E29C91
+P 7650 4575
+AR Path="/59E0EA00/59E29C91" Ref="#PWR062"  Part="1" 
+AR Path="/5961FC2A/59E29C91" Ref="#PWR05"  Part="1" 
+AR Path="/59E0D601/59E29C91" Ref="#PWR047"  Part="1" 
+AR Path="/59E0D6AE/59E29C91" Ref="#PWR052"  Part="1" 
+AR Path="/59E0E93D/59E29C91" Ref="#PWR057"  Part="1" 
+F 0 "#PWR062" H 7650 4325 50  0001 C CNN
+F 1 "GNDA" H 7650 4425 50  0000 C CNN
+F 2 "" H 7650 4575 50  0001 C CNN
+F 3 "" H 7650 4575 50  0001 C CNN
+	1    7650 4575
+	0    -1   -1   0   
+$EndComp
+Connection ~ 7475 4575
+Connection ~ 7475 4275
+$EndSCHEMATC

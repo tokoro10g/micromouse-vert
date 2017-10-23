@@ -1,0 +1,3 @@
+[submodule "src/libmazesolver"]
+	path = src/libmazesolver
+	url = tokoro10g@bitbucket.org:tokoro10g/libmazesolver.git

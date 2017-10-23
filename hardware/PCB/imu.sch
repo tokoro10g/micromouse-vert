@@ -1,0 +1,263 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:stm32
+LIBS:tps6124x
+LIBS:ICM-20602
+LIBS:TPS62130RGTR
+LIBS:tar5sb
+LIBS:jst-sh4
+LIBS:drv8833
+LIBS:micro-sdcard
+LIBS:resistorarray_4iso
+LIBS:vbat
+LIBS:lt1963a
+LIBS:mpu-6500
+LIBS:stm32f405rg
+LIBS:m03_half_lock
+LIBS:tc4427a
+LIBS:photodiode
+LIBS:tokoro_misc
+LIBS:skrkaee010
+LIBS:TLV316IDCKR
+LIBS:MAX4230AXK
+LIBS:micromouse
+LIBS:Column-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 7 12
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L ICM-20602 AC1
+U 1 1 59E12430
+P 5000 3850
+AR Path="/5961FC84/59E12430" Ref="AC1"  Part="1" 
+AR Path="/59E155CE/59E12430" Ref="AC2"  Part="1" 
+F 0 "AC1" H 6250 4500 50  0000 L CNN
+F 1 "ICM-20602" H 6250 2800 50  0000 L CNN
+F 2 "ICM-20602:QFN50P300X300X75-16N" H 6250 2700 50  0001 L CNN
+F 3 "https://www.invensense.com/wp-content/uploads/2016/10/DS-000176-ICM-20602-v1.0.pdf" H 6250 2600 50  0001 L CNN
+F 4 "Multiple Function Sensor Modules Low-Power, High-Performance Integrated 6-Axis MEMS MotionTracking  Device in 3mm x 3mm Package" H 6250 2500 50  0001 L CNN "Description"
+F 5 "RS" H 6250 2400 50  0001 C CNN "Supplier_Name"
+F 6 "" H 6250 2300 50  0001 C CNN "RS Part Number"
+F 7 "TDK InvenSense" H 6250 2200 50  0001 C CNN "Manufacturer_Name"
+F 8 "ICM-20602" H 6250 2100 50  0001 C CNN "Manufacturer_Part_Number"
+F 9 "" H 6250 2000 50  0001 C CNN "Allied_Number"
+F 10 "" H 6250 1900 50  0001 C CNN "Other Part Number"
+F 11 "0.75" H 6250 1800 50  0001 C CNN "Height"
+	1    5000 3850
+	1    0    0    -1  
+$EndComp
+$Comp
+L VDD #PWR036
+U 1 1 59E124A4
+P 5000 3850
+AR Path="/5961FC84/59E124A4" Ref="#PWR036"  Part="1" 
+AR Path="/59E155CE/59E124A4" Ref="#PWR063"  Part="1" 
+F 0 "#PWR063" H 5000 3700 50  0001 C CNN
+F 1 "VDD" H 5000 4000 50  0000 C CNN
+F 2 "" H 5000 3850 50  0001 C CNN
+F 3 "" H 5000 3850 50  0001 C CNN
+	1    5000 3850
+	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR037
+U 1 1 59E124D0
+P 6500 4050
+AR Path="/5961FC84/59E124D0" Ref="#PWR037"  Part="1" 
+AR Path="/59E155CE/59E124D0" Ref="#PWR064"  Part="1" 
+F 0 "#PWR064" H 6500 3800 50  0001 C CNN
+F 1 "GND" H 6500 3900 50  0000 C CNN
+F 2 "" H 6500 4050 50  0001 C CNN
+F 3 "" H 6500 4050 50  0001 C CNN
+	1    6500 4050
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	6400 3850 6400 4250
+Connection ~ 6400 3950
+Connection ~ 6400 4050
+Connection ~ 6400 4150
+Wire Wire Line
+	6400 4050 6500 4050
+NoConn ~ 5600 5050
+NoConn ~ 5800 5050
+Text HLabel 5000 3950 0    60   Input ~ 0
+IMU_SCK
+Text HLabel 5000 4050 0    60   Input ~ 0
+IMU_MOSI
+Text HLabel 5000 4150 0    60   Input ~ 0
+IMU_MISO
+Text HLabel 5000 4250 0    60   Input ~ 0
+IMU_NSS
+$Comp
+L C C23
+U 1 1 59E13008
+P 5950 3050
+AR Path="/5961FC84/59E13008" Ref="C23"  Part="1" 
+AR Path="/59E155CE/59E13008" Ref="C39"  Part="1" 
+F 0 "C23" H 5975 3150 50  0000 L CNN
+F 1 "0.1u" H 5975 2950 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0201_NoSilk" H 5988 2900 50  0001 C CNN
+F 3 "" H 5950 3050 50  0001 C CNN
+	1    5950 3050
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR038
+U 1 1 59E13091
+P 6100 3050
+AR Path="/5961FC84/59E13091" Ref="#PWR038"  Part="1" 
+AR Path="/59E155CE/59E13091" Ref="#PWR065"  Part="1" 
+F 0 "#PWR065" H 6100 2800 50  0001 C CNN
+F 1 "GND" H 6100 2900 50  0000 C CNN
+F 2 "" H 6100 3050 50  0001 C CNN
+F 3 "" H 6100 3050 50  0001 C CNN
+	1    6100 3050
+	0    -1   -1   0   
+$EndComp
+NoConn ~ 5700 5050
+$Comp
+L GND #PWR039
+U 1 1 59E130B1
+P 5700 3050
+AR Path="/5961FC84/59E130B1" Ref="#PWR039"  Part="1" 
+AR Path="/59E155CE/59E130B1" Ref="#PWR066"  Part="1" 
+F 0 "#PWR066" H 5700 2800 50  0001 C CNN
+F 1 "GND" H 5700 2900 50  0000 C CNN
+F 2 "" H 5700 3050 50  0001 C CNN
+F 3 "" H 5700 3050 50  0001 C CNN
+	1    5700 3050
+	-1   0    0    1   
+$EndComp
+$Comp
+L C C20
+U 1 1 59E13335
+P 5000 3700
+AR Path="/5961FC84/59E13335" Ref="C20"  Part="1" 
+AR Path="/59E155CE/59E13335" Ref="C36"  Part="1" 
+F 0 "C20" H 5025 3800 50  0000 L CNN
+F 1 "0.01u" H 5025 3600 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0201_NoSilk" H 5038 3550 50  0001 C CNN
+F 3 "" H 5000 3700 50  0001 C CNN
+	1    5000 3700
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR040
+U 1 1 59E13381
+P 5000 3550
+AR Path="/5961FC84/59E13381" Ref="#PWR040"  Part="1" 
+AR Path="/59E155CE/59E13381" Ref="#PWR067"  Part="1" 
+F 0 "#PWR067" H 5000 3300 50  0001 C CNN
+F 1 "GND" H 5000 3400 50  0000 C CNN
+F 2 "" H 5000 3550 50  0001 C CNN
+F 3 "" H 5000 3550 50  0001 C CNN
+	1    5000 3550
+	-1   0    0    1   
+$EndComp
+$Comp
+L C C21
+U 1 1 59E133CA
+P 5250 2775
+AR Path="/5961FC84/59E133CA" Ref="C21"  Part="1" 
+AR Path="/59E155CE/59E133CA" Ref="C37"  Part="1" 
+F 0 "C21" H 5275 2875 50  0000 L CNN
+F 1 "0.1u" H 5275 2675 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0201_NoSilk" H 5288 2625 50  0001 C CNN
+F 3 "" H 5250 2775 50  0001 C CNN
+	1    5250 2775
+	0    1    1    0   
+$EndComp
+$Comp
+L C C22
+U 1 1 59E1347F
+P 5250 3025
+AR Path="/5961FC84/59E1347F" Ref="C22"  Part="1" 
+AR Path="/59E155CE/59E1347F" Ref="C38"  Part="1" 
+F 0 "C22" H 5275 3125 50  0000 L CNN
+F 1 "2.2u" H 5275 2925 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0201_NoSilk" H 5288 2875 50  0001 C CNN
+F 3 "" H 5250 3025 50  0001 C CNN
+	1    5250 3025
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5400 2775 5400 3025
+Wire Wire Line
+	5100 2775 5100 3025
+Wire Wire Line
+	5400 2900 5500 2900
+Wire Wire Line
+	5500 2900 5500 3050
+Wire Wire Line
+	5500 3050 5600 3050
+Connection ~ 5400 2900
+$Comp
+L GND #PWR041
+U 1 1 59E134FA
+P 5100 2900
+AR Path="/5961FC84/59E134FA" Ref="#PWR041"  Part="1" 
+AR Path="/59E155CE/59E134FA" Ref="#PWR068"  Part="1" 
+F 0 "#PWR068" H 5100 2650 50  0001 C CNN
+F 1 "GND" H 5100 2750 50  0000 C CNN
+F 2 "" H 5100 2900 50  0001 C CNN
+F 3 "" H 5100 2900 50  0001 C CNN
+	1    5100 2900
+	0    1    1    0   
+$EndComp
+Connection ~ 5100 2900
+Connection ~ 5600 3050
+Connection ~ 5000 3850
+$Comp
+L VDD #PWR042
+U 1 1 59E2B3A4
+P 5600 3050
+AR Path="/5961FC84/59E2B3A4" Ref="#PWR042"  Part="1" 
+AR Path="/59E155CE/59E2B3A4" Ref="#PWR069"  Part="1" 
+F 0 "#PWR069" H 5600 2900 50  0001 C CNN
+F 1 "VDD" H 5600 3200 50  0000 C CNN
+F 2 "" H 5600 3050 50  0001 C CNN
+F 3 "" H 5600 3050 50  0001 C CNN
+	1    5600 3050
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC

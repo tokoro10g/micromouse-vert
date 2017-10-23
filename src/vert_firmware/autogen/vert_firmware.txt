@@ -1,0 +1,108 @@
+Configuration	vert_firmware
+STM32CubeMX 	4.22.1
+Date	10/23/2017
+MCU	STM32F411CEUx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+ADC1	IN0	ADC1_IN0	PA0-WKUP
+ADC1	IN1	ADC1_IN1	PA1
+ADC1	IN2	ADC1_IN2	PA2
+ADC1	IN3	ADC1_IN3	PA3
+ADC1	IN8	ADC1_IN8	PB0
+ADC1	IN9	ADC1_IN9	PB1
+SPI1	Full-Duplex Master	SPI1_MISO	PA6
+SPI1	Full-Duplex Master	SPI1_MOSI	PA7
+SPI1	Full-Duplex Master	SPI1_SCK	PA5
+SPI1	Hardware NSS Output Signal	SPI1_NSS	PA4
+SPI2	Full-Duplex Master	SPI2_MISO	PB14
+SPI2	Full-Duplex Master	SPI2_MOSI	PB15
+SPI2	Full-Duplex Master	SPI2_SCK	PB13
+SPI2	Hardware NSS Output Signal	SPI2_NSS	PB12
+SYS	Serial Wire	SYS_JTCK-SWCLK	PA14
+SYS	Serial Wire	SYS_JTMS-SWDIO	PA13
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+TIM1	Output Compare CH1	TIM1_CH1	PA8
+TIM1	Output Compare CH2	TIM1_CH2	PA9
+TIM1	Output Compare CH3	TIM1_CH3	PA10
+TIM1	Output Compare CH4	TIM1_CH4	PA11
+TIM2	Internal Clock	TIM2_VS_ClockSourceINT	VP_TIM2_VS_ClockSourceINT
+TIM2	Output Compare CH3	TIM2_CH3	PB10
+TIM3	Encoder Mode	TIM3_CH1	PB4
+TIM3	Encoder Mode	TIM3_CH2	PB5
+TIM4	Encoder Mode	TIM4_CH1	PB6
+TIM4	Encoder Mode	TIM4_CH2	PB7
+TIM5	Internal Clock	TIM5_VS_ClockSourceINT	VP_TIM5_VS_ClockSourceINT
+TIM9	Internal Clock	TIM9_VS_ClockSourceINT	VP_TIM9_VS_ClockSourceINT
+TIM10	Enable_Timer	TIM10_VS_ClockSourceINT	VP_TIM10_VS_ClockSourceINT
+TIM10	Output Compare CH1	TIM10_CH1	PB8
+TIM11	Enable_Timer	TIM11_VS_ClockSourceINT	VP_TIM11_VS_ClockSourceINT
+TIM11	Output Compare CH1	TIM11_CH1	PB9
+USART1	Asynchronous	USART1_RX	PB3
+USART1	Asynchronous	USART1_TX	PA15
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+2	PC13-ANTI_TAMP	GPIO_Output	
+3	PC14-OSC32_IN	GPIO_Output	
+4	PC15-OSC32_OUT	GPIO_Output	
+10	PA0-WKUP	ADC1_IN0	
+11	PA1	ADC1_IN1	
+12	PA2	ADC1_IN2	
+13	PA3	ADC1_IN3	
+14	PA4	SPI1_NSS	
+15	PA5	SPI1_SCK	
+16	PA6	SPI1_MISO	
+17	PA7	SPI1_MOSI	
+18	PB0	ADC1_IN8	
+19	PB1	ADC1_IN9	
+21	PB10	TIM2_CH3	TIM2_CH3_Buzzer
+25	PB12	SPI2_NSS	
+26	PB13	SPI2_SCK	
+27	PB14	SPI2_MISO	
+28	PB15	SPI2_MOSI	
+29	PA8	TIM1_CH1	MOTOR_RA
+30	PA9	TIM1_CH2	MOTOR_RB
+31	PA10	TIM1_CH3	MOTOR_LA
+32	PA11	TIM1_CH4	MOTOR_LB
+33	PA12	GPIO_Input	GPIO_IN_Button
+34	PA13	SYS_JTMS-SWDIO	
+37	PA14	SYS_JTCK-SWCLK	
+38	PA15	USART1_TX	
+39	PB3	USART1_RX	
+40	PB4	TIM3_CH1	
+41	PB5	TIM3_CH2	
+42	PB6	TIM4_CH1	
+43	PB7	TIM4_CH2	
+45	PB8	TIM10_CH1	IRLED1
+46	PB9	TIM11_CH1	IRLED2
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : vert_firmware
+Project Folder : /home/tokoro/dev/stm32/Projects/Vert/src/vert_firmware/autogen
+Toolchain / IDE : Makefile
+Firmware Package Name and Version : STM32Cube FW_F4 V1.16.0
+
+
+Code Generation Settings : 
+STM32Cube Firmware Library Package : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : No
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : Yes
+
+
+Toolchains Settings : 
+Compiler Optimizations : Balanced Size/Speed
+
+
+
+
+
+

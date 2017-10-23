@@ -1,0 +1,8 @@
+*.o
+*.d
+*.bak
+*.kicad_pcb_bak
+*.elf
+*.bin
+*.hex
+*.map
