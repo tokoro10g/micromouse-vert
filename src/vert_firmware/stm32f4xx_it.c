@@ -1,9 +1,12 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
+
 #include "machine/irsensor.h"
+#include "machine/machine.h"
 
 void* g_irsensor=0;
+void* g_machine=0;
 
 #ifdef __cplusplus
 extern "C"{
@@ -11,6 +14,9 @@ extern "C"{
 
 void setIRSensorIRQObject(void* obj){
 	g_irsensor = obj;
+}
+void setMachineIRQObject(void* obj){
+	g_machine = obj;
 }
 
 static void EMG_ClearAllCCR(void) {
@@ -96,7 +102,7 @@ void TIM1_BRK_TIM9_IRQHandler(void) {
 /**
 * @brief This function handles TIM5 global interrupt.
 */
-void TIM5_IRQHandler(void) { HAL_TIM_IRQHandler(&htim5); }
+void TIM5_IRQHandler(void) { static_cast<Vert::Machine*>(g_machine)->onTimerUpdate(); }
 
 /**
 * @brief This function handles DMA2 stream0 global interrupt.

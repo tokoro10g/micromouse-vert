@@ -9,6 +9,7 @@
 #include "main.h"
 
 void setIRSensorIRQObject(void* obj);
+void setMachineIRQObject(void* obj);
 
 void NMI_Handler(void);
 void HardFault_Handler(void);

@@ -6,7 +6,7 @@
 namespace Vert{
 	class IRSensor {
 		public:
-			IRSensor():hadc_({}),hdma_({}),buffer_({}),isCompleted_(false){
+			IRSensor():hadc_{},hdma_{},buffer_{},isCompleted_(false){
 				ADC_ChannelConfTypeDef sConfig;
 				GPIO_InitTypeDef GPIO_InitStruct;
 
