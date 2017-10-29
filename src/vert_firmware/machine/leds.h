@@ -1,6 +1,11 @@
 #include "stm32f4xx_hal.h"
 
 namespace Vert {
+	constexpr static uint8_t L = 0; // Low
+	constexpr static uint8_t H = 1; // High
+	constexpr static uint8_t Z = 2; // High-Z
+	// LED 4, 2, 6, 5, 3, 1; left-to-right, upper-to-lower
+	const static uint8_t pattern_[6][3] = { {L,H,Z}, {H,L,Z}, {Z,H,L}, {Z,L,H}, {H,Z,L}, {L,Z,H} };
 	class LEDs
 	{
 		public:
@@ -48,10 +53,5 @@ namespace Vert {
 		private:
 			uint8_t cursor_;
 			bool output[6];
-			constexpr static uint8_t L = 0; // Low
-			constexpr static uint8_t H = 1; // High
-			constexpr static uint8_t Z = 2; // High-Z
-			// LED 4, 2, 6, 5, 3, 1; left-to-right, upper-to-lower
-			constexpr static uint8_t pattern_[6][3] = { {L,H,Z}, {H,L,Z}, {Z,H,L}, {Z,L,H}, {H,Z,L}, {L,Z,H} };
 	};
 }

@@ -35,13 +35,13 @@
   *
   ******************************************************************************
   */
+#include "stm32f4xx_hal.h"
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
 #define __MAIN_H
   /* Includes ------------------------------------------------------------------*/
 
 /* USER CODE BEGIN Includes */
-#include "stm32f4xx_hal.h"
 
 /* USER CODE END Includes */
 
@@ -73,7 +73,6 @@ extern "C" {
 #endif
 
 void _Error_Handler(char *, int);
-void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)
 

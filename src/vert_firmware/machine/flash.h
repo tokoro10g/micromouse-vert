@@ -14,11 +14,16 @@ namespace Vert {
 				EraseInitStruct.Sector = FLASH_SECTOR_7;
 				EraseInitStruct.NbSectors = 1;
 				EraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
+				__HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP|FLASH_FLAG_PGPERR|FLASH_FLAG_WRPERR);
+
 				uint32_t PageError = 0;
 				HAL_FLASH_Unlock();
-				HAL_FLASHEx_Erase(&EraseInitStruct, &PageError);
+				if(HAL_FLASHEx_Erase(&EraseInitStruct, &PageError) != HAL_OK) {
+					HAL_FLASH_Lock();
+					return false;
+				}
 				HAL_FLASH_Lock();
-				return !!PageError;
+				return true;
 			}
 			bool writeF32(const uint32_t addr, const float data){
 				bool b = false;

@@ -4,7 +4,39 @@ namespace Vert {
 	class IMU
 	{
 		public:
-			IMU(SPI_TypeDef* SPI, GPIO_TypeDef* NSS_GPIO, uint16_t NSS_Pin):gpio_(NSS_GPIO),pin_(NSS_Pin){
+			IMU(SPI_TypeDef* SPI, GPIO_TypeDef* NSS_GPIO, uint16_t NSS_Pin):hspi_({}),gpio_(NSS_GPIO),pin_(NSS_Pin){
+				GPIO_InitTypeDef GPIO_InitStruct;
+				if(SPI==SPI1){
+					__HAL_RCC_SPI1_CLK_ENABLE();
+					GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+					GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+					GPIO_InitStruct.Pull = GPIO_NOPULL;
+					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+					GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+					HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+					GPIO_InitStruct.Pin = GPIO_PIN_4;
+					GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+					GPIO_InitStruct.Pull = GPIO_NOPULL;
+					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+					HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+				}
+				if(SPI==SPI2){
+					__HAL_RCC_SPI2_CLK_ENABLE();
+					GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+					GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+					GPIO_InitStruct.Pull = GPIO_NOPULL;
+					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+					GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
+					HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+					GPIO_InitStruct.Pin = GPIO_PIN_12;
+					GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+					GPIO_InitStruct.Pull = GPIO_NOPULL;
+					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+					HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+				}
+
 				hspi_.Instance = SPI;
 				hspi_.Init.Mode = SPI_MODE_MASTER;
 				hspi_.Init.Direction = SPI_DIRECTION_2LINES;
@@ -20,6 +52,7 @@ namespace Vert {
 				hspi_.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
 				hspi_.Init.CRCPolynomial = 10;
 				if (HAL_SPI_Init(&hspi_) != HAL_OK) { _Error_Handler(__FILE__, __LINE__); }
+				HAL_SPI_MspInit(&hspi_);
 			}
 
 			void setNssState(bool state){
@@ -31,17 +64,19 @@ namespace Vert {
 			}
 
 			bool readReg(uint8_t reg, uint8_t* byte) {
-				uint8_t data[2];
-				uint8_t recv[2];
-				data[0] = reg | 0x80;
-				data[1] = 0x00;
+				uint8_t data = reg | 0x80;
+				uint8_t recv;
 				setNssState(false);
-				if(HAL_SPI_Receive(&hspi_, recv, 2, 1) != HAL_OK) {
+				if(HAL_SPI_Transmit(&hspi_, &data, 1, 1) != HAL_OK) {
+					setNssState(true);
+					return false;
+				}
+				if(HAL_SPI_Receive(&hspi_, &recv, 1, 1) != HAL_OK) {
 					setNssState(true);
 					return false;
 				}
 				setNssState(true);
-				*byte = recv[1];
+				*byte = recv;
 				return true;
 			}
 			bool writeReg(uint8_t reg, uint8_t val) {
@@ -58,16 +93,22 @@ namespace Vert {
 				return true;
 			}
 
-			int16_t readInt16(uint8_t addr){
+			volatile int16_t readInt16(uint8_t addr){
 				union{
 					uint16_t u;
 					int16_t i;
 				} _u2i;
 				addr |= 0x80;
-				unsigned char rx[2];
+				uint8_t rx[2];
 				setNssState(false);
-				HAL_SPI_Transmit(&hspi_, &addr, 1, 1);
-				HAL_SPI_Receive(&hspi_, rx, 2, 1);
+				if(HAL_SPI_Transmit(&hspi_, &addr, 1, 1) != HAL_OK){
+					setNssState(true);
+					return -1;
+				}
+				if(HAL_SPI_Receive(&hspi_, rx, 2, 1) != HAL_OK){
+					setNssState(true);
+					return -1;
+				}
 				setNssState(true);
 				_u2i.u=(rx[0]<<8)|rx[1];
 				return _u2i.i;
@@ -82,19 +123,23 @@ namespace Vert {
 			bool reset(){
 				if(!writeReg(107, 0x81)) return false;
 				uint32_t tic = HAL_GetTick();
-				while(HAL_GetTick()-tic <= 200);
+				HAL_Delay(100);
 				if(!test()) return false;
 				return true;
 			}
 
 			bool init(){
 				if(!reset()) return false;
+				if(!writeReg(17, 0xc9)) return false;
+				if(!writeReg(26, 0x00)) return false;
 				if(!writeReg(27, 0x18)) return false;
 				if(!writeReg(28, 0x18)) return false;
-				if(!writeReg(28, 0x04)) return false;
+				if(!writeReg(29, 0x04)) return false;
+				if(!writeReg(107, 0x01)) return false;
+				return true;
 			}
 
-			void readAccXYZ(int16_t &x, int16_t &y, int16_t &z){
+			void readAccXYZ(int16_t *x, int16_t *y, int16_t *z){
 				union{
 					uint16_t u;
 					int16_t i;
@@ -106,14 +151,14 @@ namespace Vert {
 				HAL_SPI_Receive(&hspi_, rx, 6, 1);
 				setNssState(true);
 				_u2i.u=(rx[0]<<8)|rx[1];
-				x = _u2i.i;
+				*x = _u2i.i;
 				_u2i.u=(rx[2]<<8)|rx[3];
-				y = _u2i.i;
+				*y = _u2i.i;
 				_u2i.u=(rx[4]<<8)|rx[5];
-				z = _u2i.i;
+				*z = _u2i.i;
 			}
 
-			void readGyrXYZ(int16_t &x, int16_t &y, int16_t &z){
+			void readGyrXYZ(int16_t *x, int16_t *y, int16_t *z){
 				union{
 					uint16_t u;
 					int16_t i;
@@ -125,11 +170,11 @@ namespace Vert {
 				HAL_SPI_Receive(&hspi_, rx, 6, 1);
 				setNssState(true);
 				_u2i.u=(rx[0]<<8)|rx[1];
-				x = _u2i.i;
+				*x = _u2i.i;
 				_u2i.u=(rx[2]<<8)|rx[3];
-				y = _u2i.i;
+				*y = _u2i.i;
 				_u2i.u=(rx[4]<<8)|rx[5];
-				z = _u2i.i;
+				*z = _u2i.i;
 			}
 
 		private:

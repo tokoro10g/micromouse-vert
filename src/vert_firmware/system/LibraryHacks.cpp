@@ -74,27 +74,26 @@ extern "C" void __wrap___aeabi_unwind_cpp_pr2() {}
  * sbrk function for getting space for malloc and friends
  */
 
+/*
 extern int  _end;
 
-extern "C" {
-  caddr_t _sbrk ( int incr ) {
+extern "C" caddr_t _sbrk ( int incr ) {
 
-    static unsigned char *heap = NULL;
-    unsigned char *prev_heap;
+	static unsigned char *heap = NULL;
+	unsigned char *prev_heap;
 
-    if (heap == NULL) {
-      heap = (unsigned char *)&_end;
-    }
-    prev_heap = heap;
-    /* check removed to show basic approach */
+	if (heap == NULL) {
+		heap = (unsigned char *)&_end;
+	}
+	prev_heap = heap;
 
-    heap += incr;
+	heap += incr;
 
-    return (caddr_t) prev_heap;
-  }
+	return (caddr_t) prev_heap;
 }
 
-void abort(void) {
-	/* Abort called */
+extern "C" void abort(void) {
 	while(1);
 }
+*/
+

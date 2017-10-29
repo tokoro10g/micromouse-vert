@@ -268,10 +268,10 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
 
 }
 
-void HAL_TIM_OC_MspInit(TIM_HandleTypeDef* htim_oc)
+void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* htim_pwm)
 {
 
-  if(htim_oc->Instance==TIM1)
+  if(htim_pwm->Instance==TIM1)
   {
   /* USER CODE BEGIN TIM1_MspInit 0 */
 
@@ -497,10 +497,10 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
 
 }
 
-void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef* htim_oc)
+void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* htim_pwm)
 {
 
-  if(htim_oc->Instance==TIM1)
+  if(htim_pwm->Instance==TIM1)
   {
   /* USER CODE BEGIN TIM1_MspDeInit 0 */
 
