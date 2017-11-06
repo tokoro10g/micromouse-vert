@@ -1,8 +1,8 @@
 #pragma once
 
 #include "position.h"
-#include "../utils/mymath.h"
-//#include <iostream>
+#include "mymath.h"
+#include <algorithm>
 
 namespace Trajectory {
 
@@ -338,7 +338,7 @@ namespace Trajectory {
 
 				float _r = _distance/origDistance;
 
-				debug<<"_adiff:"<<(int32_t)(_adiff*1000)<<endl;
+				//debug<<"_adiff:"<<(int32_t)(_adiff*1000)<<endl;
 				return _origin + Position(xd*_r, yd*_r, _adiff);
 			}
 
@@ -349,7 +349,7 @@ namespace Trajectory {
 				adiff = diff.angle;
 				if(adiff < -MyMath::PI) adiff += 2.f*MyMath::PI;
 				if(adiff > MyMath::PI) adiff -= 2.f*MyMath::PI;
-				debug<<"adiff:"<<(int32_t)(adiff*1000)<<endl;
+				//debug<<"adiff:"<<(int32_t)(adiff*1000)<<endl;
 
 				float xm = -0.4052f*MyMath::sin(0.4696f*adiff) - 0.3316f*MyMath::sin(0.9392f*adiff);
 				float ym = 0.299f + 0.3518f*MyMath::cos(0.4651f*adiff) + 0.3492f*MyMath::cos(0.9302f*adiff);

@@ -3,7 +3,6 @@
 #include "target.h"
 #include "position.h"
 #include "parameters.h"
-#include "../utils/debug.h"
 #include <queue>
 
 namespace Trajectory{

@@ -21,7 +21,7 @@ namespace Trajectory {
 			template <typename T> Position operator* (const T d) const{ return Position((T)x*d,(T)y*d,(T)angle*d); }
 			template <typename T> void operator*= (const T d) { x*=d; y*=d; angle*=d; }
 	};
-	const Position operator* (const float c, const Position pos) { return Position(pos.x*c,pos.y*c,pos.angle*c); }
-	const Position operator* (const Position pos, const float c) { return Position(pos.x*c,pos.y*c,pos.angle*c); }
-	const Position operator/ (const Position pos, const float c) { return Position(pos.x/c,pos.y/c,pos.angle/c); }
+	const Position operator* (const float c, const Position pos);
+	const Position operator* (const Position pos, const float c);
+	const Position operator/ (const Position pos, const float c);
 }
