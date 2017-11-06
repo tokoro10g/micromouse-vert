@@ -5,7 +5,6 @@ namespace Vert{
 	class IRLED {
 		public:
 			IRLED(TIM_TypeDef* TIM):htim_({}){
-				TIM_OC_InitTypeDef sConfigOC;
 				GPIO_InitTypeDef GPIO_InitStruct;
 
 				__HAL_RCC_GPIOB_CLK_ENABLE();
@@ -13,19 +12,19 @@ namespace Vert{
 				if(TIM==TIM10){
 					__HAL_RCC_TIM10_CLK_ENABLE();
 					GPIO_InitStruct.Pin = GPIO_PIN_8;
-					GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+					GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 					GPIO_InitStruct.Pull = GPIO_NOPULL;
 					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-					GPIO_InitStruct.Alternate = GPIO_AF3_TIM10;
 					HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
 				} else if(TIM==TIM11){
 					__HAL_RCC_TIM11_CLK_ENABLE();
 					GPIO_InitStruct.Pin = GPIO_PIN_9;
-					GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+					GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 					GPIO_InitStruct.Pull = GPIO_NOPULL;
 					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-					GPIO_InitStruct.Alternate = GPIO_AF3_TIM11;
 					HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
 				}
 
 				htim_.Instance = TIM;
@@ -35,23 +34,40 @@ namespace Vert{
 				htim_.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 				if (HAL_TIM_Base_Init(&htim_) != HAL_OK) { _Error_Handler(__FILE__, __LINE__); }
 
-				if (HAL_TIM_OC_Init(&htim_) != HAL_OK) { _Error_Handler(__FILE__, __LINE__); }
+				HAL_TIM_Base_Start_IT(&htim_);
+			}
 
-				if (HAL_TIM_OnePulse_Init(&htim_, TIM_OPMODE_SINGLE) != HAL_OK) { _Error_Handler(__FILE__, __LINE__); }
+			void configIRQ(){
+				if(htim_.Instance == TIM10){
+					HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 1, 0);
+					HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+				} else if(htim_.Instance == TIM11){
+					HAL_NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn, 1, 0);
+					HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+				}
+			}
 
-				sConfigOC.OCMode = TIM_OCMODE_ACTIVE;
-				sConfigOC.Pulse = 99;
-				sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-				sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-				if (HAL_TIM_OC_ConfigChannel(&htim_, &sConfigOC, TIM_CHANNEL_1) != HAL_OK) { _Error_Handler(__FILE__, __LINE__); }
+			void onTimerUpdate(){
+				HAL_TIM_IRQHandler(&htim_);
+				stopPulse();
 			}
 
 			void triggerPulse(){
-				HAL_TIM_OnePulse_Start(&htim_, TIM_CHANNEL_1);
+				if(htim_.Instance == TIM10){
+					TIM10->CNT = 0;
+					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
+				} else if(htim_.Instance == TIM11){
+					TIM11->CNT = 0;
+					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_SET);
+				}
 			}
 
 			void stopPulse(){
-				HAL_TIM_OnePulse_Stop(&htim_, TIM_CHANNEL_1);
+				if(htim_.Instance == TIM10){
+					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
+				} else if(htim_.Instance == TIM11){
+					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
+				}
 			}
 		private:
 			TIM_HandleTypeDef htim_;

@@ -5,11 +5,11 @@ namespace Vert{
 	template<typename T>
 		class PIDController {
 			public:
-				PIDController(T _Kp, T _Ki, T _Kd, bool _reseti=true, T _isat=T(0)):Kp(_Kp),Ki(_Ki),Kd(_Kd),reseti(_reseti),isat(_isat),ep(T(0)),ei(T(0)),u(T(0)){}
+				PIDController(T _Kp, T _Ki, T _Kd, T _Ts, bool _reseti=true, T _isat=T(0)):Kp(_Kp),Ki(_Ki),Kd(_Kd),Ts(_Ts),reseti(_reseti),isat(_isat),ep(T(0)),ei(T(0)),u(T(0)){}
 				~PIDController(){}
 				void update(T r, T x){
 					if(reseti && r!=rp) ei=T(0);
-					T e=r-x; T ed=e-ep; ei+=e; ep=e;
+					T e=r-x; T ed=(e-ep)/Ts; ei+=e*Ts; ep=e;
 					if(isat>T(0)){ MyMath::saturate(ei, isat); } // Anti wind-up
 					u=Kp*e+Ki*ei+Kd*ed;
 					rp=r;
@@ -26,6 +26,7 @@ namespace Vert{
 				T Kp;
 				T Ki;
 				T Kd;
+				T Ts;
 				bool reseti;
 				T isat;
 				T ep;

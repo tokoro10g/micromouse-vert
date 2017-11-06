@@ -56,6 +56,7 @@ namespace Vert {
 			}
 			void reset() { prevCnt_ = 0; speed_ = 0; htim_.Instance->CNT = 0; }
 			int16_t speed() const{ return speed_; }
+			uint32_t getCounter() const{ return htim_.Instance->CNT; }
 			void captureSpeed() {
 				uint16_t nowCnt = htim_.Instance->CNT;
 				int32_t diff = nowCnt - prevCnt_;

@@ -5,21 +5,19 @@
 #include "machine/irsensor.h"
 #include "machine/machine.h"
 
-void* g_irsensor=0;
-void* g_machine=0;
+extern Vert::IRSensor irsensor;
+extern Vert::IRLED irled1;
+extern Vert::IRLED irled2;
+extern Vert::Machine machine;
 
 #ifdef __cplusplus
 extern "C"{
 #endif
 
-void setIRSensorIRQObject(void* obj){
-	g_irsensor = obj;
-}
-void setMachineIRQObject(void* obj){
-	g_machine = obj;
-}
-
 static void EMG_ClearAllCCR(void) {
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
+
   // Stop motors
   TIM1->CCR1 = 0;
   TIM1->CCR2 = 0;
@@ -98,16 +96,12 @@ void SysTick_Handler(void) { HAL_IncTick(); HAL_SYSTICK_IRQHandler(); }
 void TIM1_BRK_TIM9_IRQHandler(void) {
 	//HAL_TIM_IRQHandler(&htim9);
 }
+void  __attribute__((optimize("-O0"))) TIM5_IRQHandler(void) { machine.onTimerUpdate(); }
 
-/**
-* @brief This function handles TIM5 global interrupt.
-*/
-void TIM5_IRQHandler(void) { static_cast<Vert::Machine*>(g_machine)->onTimerUpdate(); }
+void  __attribute__((optimize("-O0"))) TIM1_UP_TIM10_IRQHandler(void) { irled1.onTimerUpdate(); }
+void  __attribute__((optimize("-O0"))) TIM1_TRG_COM_TIM11_IRQHandler(void) { irled2.onTimerUpdate(); }
 
-/**
-* @brief This function handles DMA2 stream0 global interrupt.
-*/
-void DMA2_Stream0_IRQHandler(void) { static_cast<Vert::IRSensor*>(g_irsensor)->onConvComplete(); }
+void  __attribute__((optimize("-O0"))) DMA2_Stream0_IRQHandler(void) { irsensor.onConvComplete(); }
 
 #ifdef __cplusplus
 }

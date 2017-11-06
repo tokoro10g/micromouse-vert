@@ -29,6 +29,7 @@ namespace Vert {
 
 			void set(uint8_t k){ output[k] = true; }
 			void reset(uint8_t k){ output[k] = false; }
+			void write(uint8_t k, bool state){ output[k] = state; }
 			void toggle(uint8_t k){ output[k] = !output[k]; }
 
 			// called every 10ms (40 ticks)

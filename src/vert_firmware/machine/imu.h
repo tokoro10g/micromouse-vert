@@ -64,7 +64,7 @@ namespace Vert {
 				}
 			}
 
-			bool readReg(uint8_t reg, uint8_t* byte) {
+			bool readReg(uint8_t reg, uint8_t &byte) {
 				uint8_t data = reg | 0x80;
 				uint8_t recv;
 				setNssState(false);
@@ -77,7 +77,7 @@ namespace Vert {
 					return false;
 				}
 				setNssState(true);
-				*byte = recv;
+				byte = recv;
 				return true;
 			}
 			bool writeReg(uint8_t reg, uint8_t val) {
@@ -117,13 +117,12 @@ namespace Vert {
 
 			bool test(){
 				uint8_t reg;
-				if(!readReg(117, &reg)) return false;
+				if(!readReg(117, reg)) return false;
 				return reg==0x12;
 			}
 
 			bool reset(){
 				if(!writeReg(107, 0x81)) return false;
-				uint32_t tic = HAL_GetTick();
 				HAL_Delay(100);
 				if(!test()) return false;
 				return true;
@@ -140,7 +139,7 @@ namespace Vert {
 				return true;
 			}
 
-			void readAccXYZ(int16_t *x, int16_t *y, int16_t *z){
+			void readAccXYZ(int16_t &x, int16_t &y, int16_t &z){
 				union{
 					uint16_t u;
 					int16_t i;
@@ -152,14 +151,14 @@ namespace Vert {
 				HAL_SPI_Receive(&hspi_, rx, 6, 1);
 				setNssState(true);
 				_u2i.u=(rx[0]<<8)|rx[1];
-				*x = _u2i.i;
+				x = _u2i.i;
 				_u2i.u=(rx[2]<<8)|rx[3];
-				*y = _u2i.i;
+				y = _u2i.i;
 				_u2i.u=(rx[4]<<8)|rx[5];
-				*z = _u2i.i;
+				z = _u2i.i;
 			}
 
-			void readGyrXYZ(int16_t *x, int16_t *y, int16_t *z){
+			void readGyrXYZ(int16_t &x, int16_t &y, int16_t &z){
 				union{
 					uint16_t u;
 					int16_t i;
@@ -171,11 +170,11 @@ namespace Vert {
 				HAL_SPI_Receive(&hspi_, rx, 6, 1);
 				setNssState(true);
 				_u2i.u=(rx[0]<<8)|rx[1];
-				*x = _u2i.i;
+				x = _u2i.i;
 				_u2i.u=(rx[2]<<8)|rx[3];
-				*y = _u2i.i;
+				y = _u2i.i;
 				_u2i.u=(rx[4]<<8)|rx[5];
-				*z = _u2i.i;
+				z = _u2i.i;
 			}
 
 		private:

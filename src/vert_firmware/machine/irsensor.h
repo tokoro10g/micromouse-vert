@@ -3,6 +3,8 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_it.h"
 
+#include <cstring>
+
 namespace Vert{
 	class IRSensor {
 		public:
@@ -27,6 +29,7 @@ namespace Vert{
 
 				if (HAL_ADC_Init(&hadc_) != HAL_OK) { _Error_Handler(__FILE__, __LINE__); }
 
+				// RF, LF, RB, LB, BAT, FR
 				const uint32_t scanChannels[6][2] = { {ADC_CHANNEL_0, 1}, {ADC_CHANNEL_1, 2}, {ADC_CHANNEL_2, 3}, {ADC_CHANNEL_3, 4}, {ADC_CHANNEL_8, 5}, {ADC_CHANNEL_9, 6} };
 				sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
 				for (uint8_t i = 0; i < 6; ++i) {
@@ -47,9 +50,6 @@ namespace Vert{
 				HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 				__HAL_RCC_DMA2_CLK_ENABLE();
-				HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 2, 0);
-				HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
-
 				hdma_.Instance = DMA2_Stream0;
 				hdma_.Init.Channel = DMA_CHANNEL_0;
 				hdma_.Init.Direction = DMA_PERIPH_TO_MEMORY;
@@ -63,16 +63,19 @@ namespace Vert{
 				if (HAL_DMA_Init(&hdma_) != HAL_OK) { _Error_Handler(__FILE__, __LINE__); }
 
 				__HAL_LINKDMA(&hadc_,DMA_Handle,hdma_);
-
-				setIRSensorIRQObject(this);
 			}
 
-			void startConv(){
-				HAL_ADC_Start_DMA(&hadc_, (uint32_t*)buffer_, 6);
+			void configIRQ(){
+				HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 2, 0);
+				HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 			}
 
-			void stopConv(){
-				HAL_ADC_Stop_DMA(&hadc_);
+			bool startConv(){
+				return HAL_ADC_Start_DMA(&hadc_, (uint32_t*)buffer_, 6)==HAL_OK;
+			}
+
+			bool stopConv(){
+				return HAL_ADC_Stop_DMA(&hadc_)==HAL_OK;
 			}
 
 			void onConvComplete(){
@@ -81,11 +84,17 @@ namespace Vert{
 			}
 
 			bool isCompleted() const{ return isCompleted_; }
-			void resetCompleted() { isCompleted_ = false; }
+			void resetCompleted(){ isCompleted_ = false; }
 
-			volatile uint16_t* getBuffer(){
-				return buffer_;
+			void readValues(volatile uint16_t dest[6]){
+				for (uint8_t i = 0; i < 6; ++i) {
+					dest[i] = buffer_[i];
+				}
 			}
+
+			enum {
+				RF=0, LF, RB, LB, BAT, FR
+			};
 
 		private:
 			ADC_HandleTypeDef hadc_;

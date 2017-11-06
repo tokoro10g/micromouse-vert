@@ -8,9 +8,6 @@
 #include "stm32f4xx_hal.h"
 #include "main.h"
 
-void setIRSensorIRQObject(void* obj);
-void setMachineIRQObject(void* obj);
-
 void NMI_Handler(void);
 void HardFault_Handler(void);
 void MemManage_Handler(void);
@@ -21,6 +18,8 @@ void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
 void TIM5_IRQHandler(void);
+void TIM1_UP_TIM10_IRQHandler(void);
+void TIM1_TRG_COM_TIM11_IRQHandler(void);
 void DMA2_Stream0_IRQHandler(void);
 
 #ifdef __cplusplus

@@ -95,6 +95,10 @@ namespace Vert {
 				htim_.Instance->PSC = 1000000UL/freq - 1;
 			}
 
+			void addNote(char note, uint8_t octave, uint16_t duration){
+				addNote(makeFreq(note, octave), duration);
+			}
+
 			void addNote(uint16_t freq, uint16_t duration){
 				Note note = {freq, duration};
 				noteBuffer_[writePos_] = note;

@@ -2,8 +2,10 @@
 #include "stdio.h"
 #include "stm32f4xx_hal.h"
 
-#include "machine/globals.h"
+#include "machine/machine.h"
 #include "mymath.h"
+
+#include "control/parameters.h"
 
 #include "string.h"
 
@@ -11,35 +13,325 @@
 extern "C" {
 #endif
 
+using namespace Vert;
+
 UART_HandleTypeDef huart1;
+
+int main(void) __attribute__((optimize("O0")));
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 
-void test_IMUs(Vert::IMU*, Vert::IMU*, Vert::LEDs*);
-void test_encoders(Vert::Encoder*, Vert::Encoder*, Vert::LEDs*);
+void test_IMUs();
+void test_encoders();
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
 
+Machine machine;
+
+void playBootSound(){
+	buzzer.stop();
+	buzzer.addNote(0, 2);
+	buzzer.addNote('e', 7, 100);
+	buzzer.addNote(0, 50);
+	buzzer.addNote('d', 7, 100);
+	buzzer.addNote(0, 50);
+	buzzer.addNote('c', 7, 100);
+	buzzer.addNote(0, 200);
+	buzzer.addNote('g', 6, 150);
+	buzzer.addNote(0, 150);
+	buzzer.addNote('g', 7, 150);
+	buzzer.addNote(0, 150);
+	buzzer.addNote('e', 7, 100);
+	buzzer.play();
+}
+void playStartSound2(){
+	buzzer.stop();
+	buzzer.addNote(0, 2);
+	buzzer.addNote('c', 5, 120);
+	buzzer.addNote('g', 5, 120);
+	buzzer.addNote('c', 6, 120);
+	buzzer.addNote('d', 6, 120);
+	buzzer.addNote('g', 6, 120);
+	buzzer.addNote('c', 7, 120);
+	buzzer.addNote('d', 7, 120);
+	buzzer.addNote('c', 7, 120);
+	buzzer.addNote('g', 6, 120);
+	buzzer.addNote('d', 6, 120);
+	buzzer.addNote('c', 6, 120);
+	buzzer.addNote('g', 5, 120);
+	buzzer.addNote('g', 5, 50);
+	buzzer.addNote('c', 6, 50);
+	buzzer.addNote('e', 6, 400);
+	buzzer.play();
+}
+void playStartSound(){
+	buzzer.stop();
+	buzzer.addNote(0, 2);
+	buzzer.addNote('c', 7, 20);
+	buzzer.addNote('e', 7, 20);
+	buzzer.addNote('f', 7, 160);
+	buzzer.addNote('e', 7, 200);
+	buzzer.addNote('c', 7, 200);
+	buzzer.addNote('g', 6, 200);
+	buzzer.addNote('g', 6, 20);
+	buzzer.addNote('c', 7, 20);
+	buzzer.addNote('d', 7, 180);
+	buzzer.addNote('c', 7, 240);
+	buzzer.addNote(7459/4, 280);
+	buzzer.addNote('f', 6, 320);
+	buzzer.addNote(7459/4, 40);
+	buzzer.addNote(4978/2, 40);
+	buzzer.addNote('g', 7, 320);
+	buzzer.play();
+}
+void playErrorSound(){
+	buzzer.stop();
+	buzzer.addNote(0, 2);
+	buzzer.addNote(2093, 130);
+	buzzer.addNote(0, 20);
+	buzzer.addNote(2093, 130);
+	buzzer.addNote(0, 20);
+	buzzer.addNote(2093, 130);
+	buzzer.addNote(0, 20);
+	buzzer.addNote(2093, 130);
+	buzzer.addNote(0, 20);
+	buzzer.play();
+}
+void playConfirmSound(){
+	buzzer.stop();
+	buzzer.addNote(0,1);
+	buzzer.addNote(2093, 80);
+	buzzer.addNote(1568, 80);
+	buzzer.play();
+}
+void playConfirmSoundUp(){
+	buzzer.stop();
+	buzzer.addNote(0,1);
+	buzzer.addNote(1568, 80);
+	buzzer.addNote(2093, 80);
+	buzzer.play();
+}
+void playEndSound(){
+	buzzer.stop();
+	buzzer.addNote(0, 2);
+	buzzer.addNote('b', 5, 250);
+	buzzer.addNote(0, 300);
+	buzzer.addNote('c', 6, 250);
+	buzzer.addNote(0, 300);
+	buzzer.addNote('c', 7, 150);
+	buzzer.play();
+}
+
+uint8_t select(uint8_t max){
+	int8_t val=0;
+	int8_t changed=0;
+	encoderR.reset();
+	while(1){
+		int16_t enc=encoderR.getCounter();
+		if(enc<-500){
+			val++; encoderR.reset(); changed=1;
+		} else if(enc>500){
+			val--; encoderR.reset(); changed=-1;
+		}
+
+		if(val<0) val=max; else if(val>max) val=0;
+
+		if(changed!=0){
+			/*
+			// korikori
+			motors.setOutput(0,changed*20);
+			HAL_Delay(20);
+			motors.setOutput(0, 0);
+			*/
+			if(max<8){
+				for(uint8_t i=0;i<6;i+=2){ leds.write(i,val&(1<<(i/2))); leds.write(i+1,val&(1<<(i/2))); }
+			} else {
+				for(uint8_t i=0;i<6;i++){ leds.write(i,val&(1<<i)); }
+			}
+		}
+
+		button.updateState();
+		if(button.getState()==Button::RisingEdge){
+			for(uint8_t i=0;i<6;i++) { leds.reset(i); }
+			playConfirmSoundUp();
+			return val;
+		}
+
+		HAL_Delay(20); changed=0;
+	}
+}
+
+int8_t waitIR(){
+	machine.unblock();
+	for (uint8_t i = 0; i < 6; ++i) { leds.reset(i); }
+	HAL_Delay(200);
+	uint8_t cnt = 0;
+	while(machine.getADCValue(IRSensor::RB)<2000){
+		cnt++;
+		button.updateState();
+		if(button.getState()==Button::RisingEdge){
+			playConfirmSound();
+			return -1;
+		}
+		HAL_Delay(20);
+		if(cnt%8==0){ for (uint8_t i = 0; i < 6; ++i) { leds.toggle(i); } }
+	}
+	for (uint8_t i = 0; i < 6; ++i) { leds.reset(i); }
+	HAL_Delay(20);
+	machine.block();
+	playStartSound();
+	return 0;
+}
+
+void initialiseRun(){
+	//agent.setIndex(15);
+	//agent.setDir(Maze::DirNorth);
+	//agent.reroute();
+	//index=15;
+	//angle=0;
+	//dir=Maze::DirNorth;
+
+	//turnCount = 0;
+
+	machine.deactivate();
+	machine.block();
+	imu1.init();
+	imu2.init();
+	machine.refreshIMUOffsets();
+	machine.unblock();
+
+	encoderL.reset();
+	encoderR.reset();
+	machine.setState(0,MyMath::Machine::InitialY,0);
+	machine.resetTargetSequence(Trajectory::Position(0,MyMath::Machine::InitialY,0));
+	machine.resetControllers();
+	//machine.setWallAdjust();
+	machine.setNeutralSideSensorValue();
+	machine.activate();
+	//isEndOfSequence = false;
+}
+
+int8_t trajMode(){
+	using namespace MyMath;
+	using namespace MyMath::Machine;
+	using namespace Trajectory;
+	//machine.setWallCorrection(false);
+
+	uint8_t param=select(7);
+	if(param==0) return 0;
+
+	p_faststraight_start = pa_faststraight_start[param-1];
+	p_faststraight = pa_faststraight[param-1];
+	p_faststraight_end = pa_faststraight_end[param-1];
+	p_fastturn = pa_fastturn[param-1];
+
+	if(waitIR()<0) return 0;
+	HAL_Delay(4000);
+
+	initialiseRun();
+	//machine.setWallCorrection(true);
+
+	machine.pushTarget(Position(0,CellWidth/2,0), new MotionLinear(new EasingTrap()), p_straight_start);
+	machine.pushTarget(Position(CellWidth/2,CellWidth,-MyMath::PI/2), new MotionSmoothArc(new EasingLinear()), p_turn);
+	machine.pushTarget(Position(CellWidth,CellWidth,-MyMath::PI/2), new MotionLinear(new EasingTrap()), p_straight_end);
+
+	while(1){
+		if(!machine.isActivated()){
+			playErrorSound();
+			//flushLog();
+			return -1;
+		}
+		if(machine.isTargetSequenceEmpty()){
+			playErrorSound();
+			//flushLog();
+			break;
+		}
+		//flushLog();
+		HAL_Delay(20);
+	}
+	HAL_Delay(3000);
+	playConfirmSound();
+	machine.deactivate();
+	//flushLog();
+	return 0;
+}
+
+void runMode(){
+	uint8_t mode=select(6); int8_t result=0;
+	switch(mode){
+		case 0:  return;
+		case 1:  return;//result=searchRunMode(); break;
+		case 2:  return;//result=fastRunMode(false, false); break;
+		case 3:  return;//result=fastRunMode(false, true); break;
+		case 4:  return;//result=fastRunMode(true, true); break;
+		case 5:  return;//result=fastRunMode(true, false); break;
+		case 6:  result=trajMode(); break;
+		default: break;
+	}
+	/*
+	switch(result){
+		case -1: buzzer; break;
+		default: break;
+	}
+	*/
+	return;
+}
+
+void menu(){
+	uint8_t mode=select(5);
+	switch(mode){
+		case 0:  return;
+		case 1:  return runMode();
+		case 2:  return;// mazeMode();
+		case 3:  return;// sensorMode();
+		case 4:  return;//circuitMode(); return;
+		case 5:  return;//goalSetMode(); return;
+		default: break;
+	}
+	return;
+}
+
+void wait(){
+	while(1){
+		machine.block();
+		button.updateState();
+		if(button.getState()==Button::RisingEdge){
+			// TODO: implement menu
+			playConfirmSound(); menu();
+		}
+		HAL_Delay(20);
+	}
+}
+
 int main(void)
 {
-	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
 
-	/* Initialize all configured peripherals */
+	HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+	HAL_NVIC_SetPriority(MemoryManagement_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(BusFault_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(UsageFault_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(SVCall_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(DebugMonitor_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(PendSV_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(SysTick_IRQn, 1, 0);
+
 	MX_GPIO_Init();
 
+	// NVIC (at least) should be configured after HAL_Init
+	irsensor.configIRQ();
+	machine.configIRQ();
+	irled1.configIRQ();
+	irled2.configIRQ();
 
 	MX_USART1_UART_Init();
-
-	//Vert::Flash log;
-	//log.erase();
 
 	__HAL_DBGMCU_FREEZE_TIM1();
 	__HAL_DBGMCU_FREEZE_TIM2();
 
-	encL.reset(); encR.reset();
+	encoderL.reset(); encoderR.reset();
 
 	leds.reset(0);
 	leds.reset(1);
@@ -57,86 +349,67 @@ int main(void)
 	if(!imu1.init()){ leds.reset(3); leds.reset(4); leds.reset(5); }
 	if(!imu2.init()){ leds.reset(3); leds.reset(4); leds.reset(5); }
 
-	buzzer.stop();
-	buzzer.addNote(0, 200);
-	buzzer.addNote(2093, 130);
-	buzzer.addNote(0, 20);
-	buzzer.addNote(1976, 130);
-	buzzer.addNote(0, 20);
-	buzzer.addNote(2093, 150);
-	buzzer.addNote(0, 150);
-	buzzer.addNote(1568, 150);
-	buzzer.addNote(0, 150);
-	buzzer.addNote(3136, 150);
-	buzzer.addNote(0, 150);
-	buzzer.addNote(2637, 150);
-	buzzer.play();
-
-	if(HAL_UART_Transmit(&huart1, "Bonjour\n", 8, 100) != HAL_OK){
-		Error_Handler();
+	uint16_t buf[6];
+	uint32_t batt_sum = 0;
+	for(uint8_t i=0; i<200; i++){
+		irsensor.startConv();
+		HAL_Delay(1);
+		while(!irsensor.isCompleted()){}
+		irsensor.stopConv();
+		irsensor.resetCompleted();
+		irsensor.readValues(buf);
+		batt_sum += buf[4];
 	}
+	if(batt_sum/200 <= 2250){
+		playErrorSound();
+		while(1);
+	}
+
+	playBootSound();
+
+	//if(HAL_UART_Transmit(&huart1, "Bonjour\n", 8, 100) != HAL_OK){ Error_Handler(); }
+	machine.unblock();
 
 	float f = MyMath::sqrt(3.0f);
-	char chrbuf[20];
-	uint8_t len = sprintf(chrbuf, "%f\n", f);
-	if(HAL_UART_Transmit(&huart1, chrbuf, len, 100) != HAL_OK){
-		Error_Handler();
-	}
+	char chrbuf[20]; uint8_t len = sprintf(chrbuf, "%f\n", f);
+	if(HAL_UART_Transmit(&huart1, chrbuf, len, 100) != HAL_OK){ Error_Handler(); }
 
-	while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12)==GPIO_PIN_SET);
+	/*
+	select(7);
+
+	waitIR();
+
+	//while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12)==GPIO_PIN_SET);
 
 	HAL_Delay(2000);
 
-	//motors.setOutput(-80,-80);
-	motors.setOutput(0,0);
+	machine.refreshIMUOffsets();
 
-	irsensor.startConv();
+	HAL_Delay(1000);
+	machine.unblock();
+	machine.activate();
 
-	uint8_t cnt = 0;
+	uint16_t cnt = 0;
 	uint8_t lowVoltCnt = 0;
-	volatile uint16_t* buf = irsensor.getBuffer();
 
-	while(!irsensor.isCompleted()){}
+	//machine.startLogging();
+	*/
+
+	wait();
+
+	/*
+	float rw = 0;
+	int8_t sig = 1;
 	while (1)
 	{
 		uint32_t tic = HAL_GetTick();
 
-		leds.update();
-		buzzer.update();
+		//test_IMUs();
+		test_encoders();
 
-		//test_IMUs(&imu1, &imu2, &leds);
-		//test_encoders(&encL, &encR, &leds);
+		using namespace MyMath::Machine;
 
-		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12)==GPIO_PIN_RESET){
-			motors.setOutput(150,150);
-		} else {
-			motors.setOutput(0, 0);
-		}
-
-		uint16_t irul = ((uint32_t)buf[3]+(uint32_t)buf[9]+(uint32_t)buf[15]+(uint32_t)buf[21]+(uint32_t)buf[27]+(uint32_t)buf[33]+(uint32_t)buf[39]+(uint32_t)buf[45])/8;
-		uint16_t irur = ((uint32_t)buf[2]+(uint32_t)buf[8]+(uint32_t)buf[14]+(uint32_t)buf[20]+(uint32_t)buf[26]+(uint32_t)buf[32]+(uint32_t)buf[38]+(uint32_t)buf[44])/8;
-		uint16_t irdl = ((uint32_t)buf[1]+(uint32_t)buf[7]+(uint32_t)buf[13]+(uint32_t)buf[19]+(uint32_t)buf[25]+(uint32_t)buf[31]+(uint32_t)buf[37]+(uint32_t)buf[43])/8;
-		uint16_t irdr = ((uint32_t)buf[0]+(uint32_t)buf[6]+(uint32_t)buf[12]+(uint32_t)buf[18]+(uint32_t)buf[24]+(uint32_t)buf[30]+(uint32_t)buf[36]+(uint32_t)buf[42])/8;
-		uint16_t irf = ((uint32_t)buf[5]+(uint32_t)buf[11]+(uint32_t)buf[17]+(uint32_t)buf[23]+(uint32_t)buf[29]+(uint32_t)buf[35]+(uint32_t)buf[41]+(uint32_t)buf[47])/8;
-
-		if(irul>2000){ leds.set(0); }
-		else { leds.reset(0); }
-		if(irur>2000){ leds.set(1); }
-		else { leds.reset(1); }
-		if(irdl>800){ leds.set(2); }
-		else { leds.reset(2); }
-		if(irdr>550){ leds.set(3); }
-		else { leds.reset(3); }
-		if(irf>3100){ leds.set(4); leds.set(5); }
-		else { leds.reset(4); leds.reset(5); }
-
-		if(cnt%8==0){
-			char str[7];
-			sprintf(str, "%4d %4d %4d %4d %4d %4d\n", irul, irur, irdl, irdr, irf, buf[4]);
-			if(HAL_UART_Transmit(&huart1, str, 30, 10000) != HAL_OK){
-				Error_Handler();
-			}
-		}
+		if(cnt>=1000){ motors.setOutput(0,0); break; }
 
 		if(buf[4] <= 2150){
 			lowVoltCnt++;
@@ -146,15 +419,13 @@ int main(void)
 		if(lowVoltCnt > 200){
 			break;
 		}
-
 		while(HAL_GetTick()-tic <= 1){}
 		cnt++;
 	}
 
-	buzzer.stop();
-	buzzer.update();
+	playEndSound();
 
-	motors.stop();
+	machine.temp_setStatev(0);
 
 	irsensor.stopConv();
 
@@ -162,7 +433,7 @@ int main(void)
 		leds.reset(i);
 	}
 	cnt = 0;
-	while(1){
+	while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12)==GPIO_PIN_SET){
 		cnt++;
 		if(cnt%64==0){
 			for (uint8_t i = 0; i < 6; ++i) {
@@ -172,28 +443,53 @@ int main(void)
 		leds.update();
 		HAL_Delay(1);
 	}
+	machine.stopLogging();
+
+	machine.deactivate();
+
+	volatile float* log = machine.log;
+	uint16_t logcnt = 6000;
+	for (uint16_t i = 0; i < logcnt; i+=4) {
+		char str[100];
+		uint8_t chrcnt = sprintf(str, "%4f %4f %4f %4f\n", log[i], log[i+1], log[i+2], log[i+3]);
+		if(HAL_UART_Transmit(&huart1, str, chrcnt, 100) != HAL_OK){
+			Error_Handler();
+		}
+	}
+
+	while(1){
+		cnt++;
+		if(cnt%128==0){
+			for (uint8_t i = 0; i < 6; ++i) {
+				leds.toggle(i);
+			}
+		}
+		leds.update();
+		HAL_Delay(1);
+	}
+	*/
 }
 
-void test_IMUs(Vert::IMU* imu1, Vert::IMU* imu2, Vert::LEDs* leds){
+void test_IMUs(){
 	// Testing IMUs
-	volatile int16_t x = imu1->readInt16(59);
-	volatile int16_t x2 = imu2->readInt16(59);
-	if(x<0){ leds->reset(0); leds->set(1); }
-	else { leds->reset(1); leds->set(0); }
-	if(x2<0){ leds->reset(2); leds->set(3); }
-	else { leds->reset(3); leds->set(2); }
+	volatile int16_t x = imu1.readInt16(59);
+	volatile int16_t x2 = imu2.readInt16(59);
+	if(x<0){ leds.reset(0); leds.set(1); }
+	else { leds.reset(1); leds.set(0); }
+	if(x2<0){ leds.reset(2); leds.set(3); }
+	else { leds.reset(3); leds.set(2); }
 }
 
-void test_encoders(Vert::Encoder* encL, Vert::Encoder* encR, Vert::LEDs* leds){
+void test_encoders(){
 	// Testing encoders
-	encL->captureSpeed();
-	if(encL->speed()<0){ leds->reset(0); leds->set(1); }
-	else if(encL->speed()==0) {  }
-	else { leds->reset(1); leds->set(0); }
-	encR->captureSpeed();
-	if(encR->speed()<0){ leds->reset(2); leds->set(3); }
-	else if(encR->speed()==0) {  }
-	else { leds->reset(3); leds->set(2); }
+	encoderL.captureSpeed();
+	if(encoderL.speed()<0){ leds.reset(0); leds.set(1); }
+	else if(encoderL.speed()==0) {  }
+	else { leds.reset(1); leds.set(0); }
+	encoderR.captureSpeed();
+	if(encoderR.speed()<0){ leds.reset(2); leds.set(3); }
+	else if(encoderR.speed()==0) {  }
+	else { leds.reset(3); leds.set(2); }
 }
 
 /** System Clock Configuration
@@ -303,12 +599,6 @@ static void MX_GPIO_Init(void)
 	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-	/*Configure GPIO pin : GPIO_IN_Button_Pin */
-	GPIO_InitStruct.Pin = GPIO_IN_Button_Pin;
-	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	HAL_GPIO_Init(GPIO_IN_Button_GPIO_Port, &GPIO_InitStruct);
 
 }
 

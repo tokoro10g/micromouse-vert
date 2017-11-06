@@ -74,19 +74,24 @@ namespace Vert {
 				MyMath::saturate(left, (int16_t)ccr_max);
 				MyMath::saturate(right, (int16_t)ccr_max);
 				if(left > 0){
-					htim_.Instance->CCR1 = left;
-					htim_.Instance->CCR2 = 0;
-				} else {
-					htim_.Instance->CCR1 = 0;
-					htim_.Instance->CCR2 = -left;
-				}
-				if(right > 0){
-					htim_.Instance->CCR3 = right;
+					htim_.Instance->CCR3 = left;
 					htim_.Instance->CCR4 = 0;
 				} else {
 					htim_.Instance->CCR3 = 0;
-					htim_.Instance->CCR4 = -right;
+					htim_.Instance->CCR4 = -left;
 				}
+				if(right > 0){
+					htim_.Instance->CCR1 = right;
+					htim_.Instance->CCR2 = 0;
+				} else {
+					htim_.Instance->CCR1 = 0;
+					htim_.Instance->CCR2 = -right;
+				}
+			}
+
+			void getOutput(int16_t& left, int16_t& right) const{
+				left = htim_.Instance->CCR3 - htim_.Instance->CCR4;
+				right = htim_.Instance->CCR1 - htim_.Instance->CCR2;
 			}
 
 			void stop(){
@@ -98,6 +103,6 @@ namespace Vert {
 
 		private:
 			TIM_HandleTypeDef htim_;
-			constexpr static uint16_t ccr_max = 499;
+			constexpr static uint16_t ccr_max = 399;
 	};
 }
