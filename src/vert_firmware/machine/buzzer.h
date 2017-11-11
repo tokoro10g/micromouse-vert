@@ -122,7 +122,7 @@ namespace Vert {
 
 		private:
 			constexpr static uint8_t noteCnt_ = 255;
-			constexpr static uint8_t pwm_ccr = 2;
+			constexpr static uint8_t pwm_ccr = 1;
 
 			TIM_HandleTypeDef htim_;
 			Note noteBuffer_[noteCnt_];

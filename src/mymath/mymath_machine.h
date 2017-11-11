@@ -9,7 +9,7 @@ namespace MyMath { namespace Machine {
 	static const uint16_t EncoderPulse = 2000;
 	static const float WheelPulse = (float)EncoderPulse;
 
-	static const float WheelDiameter = 13.3f;
+	static const float WheelDiameter = 13.7f;
 	static const float WheelPerimeter = WheelDiameter*PI;
 
 	static const float WheelRadianPerPulse = PI/(WheelPulse/2.f);
@@ -28,7 +28,7 @@ namespace MyMath { namespace Machine {
 	static const float PillarWidth = 6.f;
 	static const float CellWidth = 90.f;
 
-	static const float RearLength = 20.f+PillarWidth/2.f;
+	static const float RearLength = 23.f+PillarWidth/2.f;
 	static const float InitialY = RearLength-CellWidth/2.f;
 
 	static const float PulseDiffPerMachineRadian = TreadWidth*PulsePerWheelDistance;
@@ -37,7 +37,7 @@ namespace MyMath { namespace Machine {
 	static const float MachineDegreePerPulseDiff = 180.f/(PI*TreadWidth*PulsePerWheelDistance);
 	static const float PulseDiffPerMachineDegree = 1.f/MachineDegreePerPulseDiff;
 
-	static const float GyroValuePerMachineRotation = 16.4f*360.f*2000.f; // calculated value
+	static const float GyroValuePerMachineRotation = 16.384f*360.f*1000.f; // calculated value
 
 	static const float GyroValuePerMachineRadian = GyroValuePerMachineRotation/2.f/PI;
 	static const float MachineRadianPerGyroValue = 1.f/GyroValuePerMachineRadian;
@@ -48,7 +48,7 @@ namespace MyMath { namespace Machine {
 	static const float GyroValuePerPulseDiff = GyroValuePerMachineRadian*MachineRadianPerPulseDiff;
 	static const float PulseDiffPerGyroValue = 1.f/GyroValuePerPulseDiff;
 
-	static const float PreTurnDistance = 4.f;
+	static const float PreTurnDistance = 20.f;
 
 	/* Unit conversion functions */
 	float convertPulseToWheelRadian(int32_t pulse);

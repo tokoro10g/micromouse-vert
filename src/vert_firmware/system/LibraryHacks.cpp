@@ -74,7 +74,6 @@ extern "C" void __wrap___aeabi_unwind_cpp_pr2() {}
  * sbrk function for getting space for malloc and friends
  */
 
-/*
 extern int  _end;
 
 extern "C" caddr_t _sbrk ( int incr ) {
@@ -95,5 +94,4 @@ extern "C" caddr_t _sbrk ( int incr ) {
 extern "C" void abort(void) {
 	while(1);
 }
-*/
 

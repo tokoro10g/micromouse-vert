@@ -93,7 +93,7 @@ namespace Vert{
 			}
 
 			enum {
-				RF=0, LF, RB, LB, BAT, FR
+				LF=0, RF, RB, LB, BAT, FR
 			};
 
 		private:
