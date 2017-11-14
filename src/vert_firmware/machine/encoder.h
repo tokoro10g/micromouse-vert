@@ -70,7 +70,7 @@ namespace Vert {
 
 		private:
 			TIM_HandleTypeDef htim_;
-			uint16_t prevCnt_;
-			int16_t speed_;
+			volatile uint16_t prevCnt_;
+			volatile int16_t speed_;
 	};
 }

@@ -53,7 +53,7 @@ namespace Vert {
 			}
 
 		private:
-			uint8_t cursor_;
-			bool output[6];
+			volatile uint8_t cursor_;
+			volatile bool output[6];
 	};
 }

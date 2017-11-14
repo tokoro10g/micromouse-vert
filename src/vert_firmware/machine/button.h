@@ -36,6 +36,6 @@ namespace Vert{
 				return internalState_;
 			}
 		private:
-			ButtonState internalState_;
+			volatile ButtonState internalState_;
 	};
 }

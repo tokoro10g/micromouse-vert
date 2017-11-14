@@ -52,6 +52,25 @@ Direction g_dir = Maze::DirNorth;
 uint16_t g_goal = 31;
 float g_angle = 0;
 
+float CellRatio = 0.5f;
+
+void playMario(){
+	buzzer.stop();
+	buzzer.addNote(0, 20);
+	buzzer.addNote('e', 6, 100);
+	buzzer.addNote(0, 50);
+	buzzer.addNote('e', 6, 100);
+	buzzer.addNote(0, 200);
+	buzzer.addNote('e', 6, 100);
+	buzzer.addNote(0, 200);
+	buzzer.addNote('c', 6, 150);
+	buzzer.addNote('e', 6, 100);
+	buzzer.addNote(0, 200);
+	buzzer.addNote('g', 6, 150);
+	buzzer.addNote(0, 450);
+	buzzer.addNote('g', 5, 150);
+	buzzer.play();
+}
 void playBootSound(){
 	buzzer.stop();
 	buzzer.addNote(0, 2);
@@ -69,6 +88,7 @@ void playBootSound(){
 	buzzer.play();
 }
 void playStartSound2(){
+	if(MyMath::Machine::CellWidth!=90.f){ playMario(); return; }
 	buzzer.stop();
 	buzzer.addNote(0, 2);
 	buzzer.addNote('c', 5, 100);
@@ -89,6 +109,7 @@ void playStartSound2(){
 	buzzer.play();
 }
 void playStartSound(){
+	if(MyMath::Machine::CellWidth!=90.f){ playMario(); return; }
 	buzzer.stop();
 	buzzer.addNote(0, 2);
 	buzzer.addNote('c', 7, 20);
@@ -214,9 +235,6 @@ void initialiseRun(){
 	turnCount = 0;
 
 	machine.deactivate();
-	machine.block();
-	imu1.init();
-	imu2.init();
 	machine.refreshIMUOffsets();
 	machine.unblock();
 
@@ -405,7 +423,7 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 	return -1;
 }
 
-int8_t searchRunMode(){
+int8_t searchRunMode(bool infinityMode=false){
 	using namespace MyMath;
 	using namespace MyMath::Machine;
 	using namespace Trajectory;
@@ -413,11 +431,11 @@ int8_t searchRunMode(){
 	uint8_t param=modeSelect(4);
 	if(param==0) return 0;
 
-	int16_t v = 50+param*50;
+	int16_t v = 50+param*(50+(CellWidth==180.f)*50);
 	p_straight_start=Trajectory::Parameters(0,v,v,2000);
 	p_straight=Trajectory::Parameters(v,v,v,2000);
 	p_straight_acc=Trajectory::Parameters(v,v,v+200,700+param*100);
-	p_straight_end=Trajectory::Parameters(v,0,v,2000);
+	p_straight_end=Trajectory::Parameters(v,0,v,1500);
 	p_turn=Trajectory::Parameters(v,v,v,2000);
 	p_ministraight=Trajectory::Parameters(0,0,v,1000);
 
@@ -431,40 +449,64 @@ int8_t searchRunMode(){
 	machine.setWallCorrection(true);
 	*/
 
-	machine.pushTarget(Position(0,CellWidth/2.f,0), new MotionLinear(new EasingTrap()), p_straight_start);
+	do {
+		machine.pushTarget(Position(0,CellWidth/2.f,0), new MotionLinear(new EasingTrap()), p_straight_start);
 
-	if(procSearch(maze.getGoalNodeIndex())==0) {
-		playConfirmSound();
-	} else {
-		maze = backupMaze;
-		//flushLog();
-		return -1;
-	}
-
-	agent.reroute();
-
-	while(1){
-		int16_t tempGoal=agent.searchCandidateNode(maze.getWidth()-1);
-		if(g_index==maze.getWidth()-1 && tempGoal<0){ break; }
-		if(tempGoal<0){
-			backupMaze = maze;
-			tempGoal=maze.getWidth()-1; playEndSound();
-		}
-		agent.reroute();
-		int8_t result=procSearch(tempGoal,true);
-		if(result>=0){
-			graph.getNodePointer(tempGoal)->setVisited();
-		}
-		if(result==-1) {
+		if(procSearch(maze.getGoalNodeIndex())==0) {
+			if(infinityMode){
+				MazeLoader::loadEmpty(32,32,maze.getGoalX(),maze.getGoalY(),maze);
+				graph.loadEmpty(32,32);
+				graph.loadMaze(&maze);
+				graph.resetCost();
+			}
+			playConfirmSound();
+		} else {
 			maze = backupMaze;
 			//flushLog();
 			return -1;
 		}
-	}
 
-	machine.pushTargetDiff(Position(-CellWidth/2.f*sin(g_angle),CellWidth/2.f*cos(g_angle),0.f), new MotionLinear(new EasingTrap()), p_straight_end);
-	HAL_Delay(3000);
-	playConfirmSound();
+		agent.reroute();
+
+		while(1){
+			int16_t tempGoal=agent.searchCandidateNode(maze.getWidth()-1);
+			if(g_index==maze.getWidth()-1 && tempGoal<0){ break; }
+			if(tempGoal<0){
+				backupMaze = maze;
+				tempGoal=maze.getWidth()-1; playEndSound();
+			}
+			agent.reroute();
+			int8_t result=procSearch(tempGoal,true);
+			if(result>=0){
+				graph.getNodePointer(tempGoal)->setVisited();
+			}
+			if(result==-1) {
+				maze = backupMaze;
+				//flushLog();
+				return -1;
+			}
+		}
+
+		machine.pushTargetDiff(Position(-CellWidth/2.f*sin(g_angle),CellWidth/2.f*cos(g_angle),0.f), new MotionLinear(new EasingTrap()), p_straight_end);
+		HAL_Delay(3000);
+		playConfirmSound();
+		if(infinityMode){
+			MazeLoader::loadEmpty(32,32,maze.getGoalX(),maze.getGoalY(),maze);
+			graph.loadEmpty(32,32);
+			graph.loadMaze(&maze);
+			graph.resetCost();
+			machine.pushTargetDiff(Position(0.f,0.f,PI), new MotionTurn(new EasingPoly5()), p_miniturn);
+			g_index=maze.getWidth()-1;
+			g_angle=0;
+			g_dir=Maze::DirNorth;
+			turnCount = 0;
+			isEndOfSequence = false;
+			agent.setIndex(maze.getWidth()-1);
+			agent.setDir(Maze::DirNorth);
+			agent.reroute();
+		}
+	} while(infinityMode);
+
 	machine.deactivate();
 	//flushLog();
 	machine.block();
@@ -487,10 +529,10 @@ bool pushDiagonalTrajectory(int16_t alphaFrom, int16_t alphaTo, int8_t dir=-1) {
 			{
 				if(dir<=0) break;
 				// 180 deg turn
-				machine.pushTargetDiff(20.f/2.f*Position(-sin(alphaFrom_rad), cos(alphaFrom_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
+				//machine.pushTargetDiff(20.f*CellRatio*Position(-sin(alphaFrom_rad), cos(alphaFrom_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
 				Position po = MotionSmoothArc::calcDest(machine.getLastPosition(), Machine::CellWidth, alphaTo_rad, dir);
 				machine.pushTarget(po, new MotionSmoothArc(new EasingLinear()), p_fastturn);
-				machine.pushTargetDiff(20.f/2.f*Position(-sin(alphaTo_rad), cos(alphaTo_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
+				//machine.pushTargetDiff(20.f*CellRatio*Position(-sin(alphaTo_rad), cos(alphaTo_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
 			}
 			break;
 		case 45:
@@ -498,12 +540,12 @@ bool pushDiagonalTrajectory(int16_t alphaFrom, int16_t alphaTo, int8_t dir=-1) {
 			{
 				// 45 deg turn
 				if(alphaFrom % 90 != 0) {
-					machine.pushTargetDiff(52.1353f/2.f*Position(-sin(alphaFrom_rad), cos(alphaFrom_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
+					machine.pushTargetDiff(52.1353f*CellRatio*Position(-sin(alphaFrom_rad), cos(alphaFrom_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
 				}
-				Position po = MotionSmoothArc::calcDest(machine.getLastPosition(), 138.7150f/2.f, alphaTo_rad);
+				Position po = MotionSmoothArc::calcDest(machine.getLastPosition(), 138.7150f*CellRatio, alphaTo_rad);
 				machine.pushTarget(po, new MotionSmoothArc(new EasingLinear()), p_fastturn);
 				if(alphaFrom % 90 == 0) {
-					machine.pushTargetDiff(52.1353f/2.f*Position(-sin(alphaTo_rad), cos(alphaTo_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
+					machine.pushTargetDiff(52.1353f*CellRatio*Position(-sin(alphaTo_rad), cos(alphaTo_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
 				}
 			}
 			break;
@@ -512,16 +554,23 @@ bool pushDiagonalTrajectory(int16_t alphaFrom, int16_t alphaTo, int8_t dir=-1) {
 			{
 				// 90 deg turn
 				if(alphaFrom % 90 == 0) {
-					float dist = 205.2315f/2.f;
-					machine.pushTargetDiff(20.f/2.f*Position(-sin(alphaFrom_rad), cos(alphaFrom_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
+					float dist = 233.5392f*CellRatio;
+					//float dist = 205.2315f*CellRatio;
+					//machine.pushTargetDiff(20.f*CellRatio*Position(-sin(alphaFrom_rad), cos(alphaFrom_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
 					Position po = MotionSmoothArc::calcDest(machine.getLastPosition(), dist, alphaTo_rad);
 					machine.pushTarget(po, new MotionSmoothArc(new EasingLinear()), p_fastturn);
-					machine.pushTargetDiff(20.f/2.f*Position(-sin(alphaTo_rad), cos(alphaTo_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
+					//machine.pushTargetDiff(20.f*CellRatio*Position(-sin(alphaTo_rad), cos(alphaTo_rad), 0.f), new MotionLinear(new EasingLinear()), p_fastturn);
 				} else {
-					machine.pushTargetDiff(10.f/2.f*sqrt(2.f)*Position(-sin(alphaFrom_rad),cos(alphaFrom_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
-					Position po = MotionSmoothArc::calcDest(machine.getLastPosition(), 160.f/2.f, alphaTo_rad);
+					/*
+					machine.pushTargetDiff(7.f*CellRatio*sqrt(2.f)*Position(-sin(alphaFrom_rad),cos(alphaFrom_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
+					Position po = MotionSmoothArc::calcDest(machine.getLastPosition(), 166.1380f*CellRatio, alphaTo_rad);
 					machine.pushTarget(po, new MotionSmoothArc(new EasingLinear()), p_fastturn);
-					machine.pushTargetDiff(10.f/2.f*sqrt(2.f)*Position(-sin(alphaTo_rad),cos(alphaTo_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
+					machine.pushTargetDiff(7.f*CellRatio*sqrt(2.f)*Position(-sin(alphaTo_rad),cos(alphaTo_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
+					*/
+					machine.pushTargetDiff(10.f*CellRatio*sqrt(2.f)*Position(-sin(alphaFrom_rad),cos(alphaFrom_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
+					Position po = MotionSmoothArc::calcDest(machine.getLastPosition(), 160.f*CellRatio, alphaTo_rad);
+					machine.pushTarget(po, new MotionSmoothArc(new EasingLinear()), p_fastturn);
+					machine.pushTargetDiff(10.f*CellRatio*sqrt(2.f)*Position(-sin(alphaTo_rad),cos(alphaTo_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
 				}
 			}
 			break;
@@ -530,16 +579,16 @@ bool pushDiagonalTrajectory(int16_t alphaFrom, int16_t alphaTo, int8_t dir=-1) {
 			{
 				// 135 deg turn
 				if(alphaFrom % 90 == 0) {
-					machine.pushTargetDiff(10.f/2.f*Position(-sin(alphaFrom_rad),cos(alphaFrom_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
+					machine.pushTargetDiff(10.f*CellRatio*Position(-sin(alphaFrom_rad),cos(alphaFrom_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
 				} else {
-					machine.pushTargetDiff(9.2824f/2.f*Position(-sin(alphaFrom_rad),cos(alphaFrom_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
+					machine.pushTargetDiff(9.2824f*CellRatio*Position(-sin(alphaFrom_rad),cos(alphaFrom_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
 				}
-				Position po = MotionSmoothArc::calcDest(machine.getLastPosition(), 187.6207f/2.f, alphaTo_rad);
+				Position po = MotionSmoothArc::calcDest(machine.getLastPosition(), 187.6207f*CellRatio, alphaTo_rad);
 				machine.pushTarget(po, new MotionSmoothArc(new EasingLinear()), p_fastturn);
 				if(alphaFrom % 90 == 0) {
-					machine.pushTargetDiff(9.2824f/2.f*Position(-sin(alphaTo_rad),cos(alphaTo_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
+					machine.pushTargetDiff(9.2824f*CellRatio*Position(-sin(alphaTo_rad),cos(alphaTo_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
 				} else {
-					machine.pushTargetDiff(10.f/2.f*Position(-sin(alphaTo_rad),cos(alphaTo_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
+					machine.pushTargetDiff(10.f*CellRatio*Position(-sin(alphaTo_rad),cos(alphaTo_rad),0), new MotionLinear(new EasingLinear()), p_fastturn);
 				}
 			}
 			break;
@@ -630,9 +679,9 @@ int8_t fastRunMode(bool useDiagonal, bool wallAdjust){
 			// trajectory with diagonal path {{{
 			Direction dirdiff = g_dir-agent.getDir();
 			if(!dirdiff.bits.NORTH) {
-				Position po = pPivot - 75.f/2.f * Position(-sin(pPivot.angle), cos(pPivot.angle), 0.f);
+				Position po = pPivot - 75.f*CellRatio * Position(-sin(pPivot.angle), cos(pPivot.angle), 0.f);
 				if(firstFlag){
-					machine.pushTarget(Position(0,15.f/2.f,0), new MotionLinear(new EasingTrap()), p_faststraight_start);
+					machine.pushTarget(Position(0,15.f*CellRatio,0), new MotionLinear(new EasingTrap()), p_faststraight_start);
 					if(straightCount>0){
 						machine.pushTarget(po, new MotionLinear(new EasingTrap()), p_faststraight);
 					}
@@ -857,6 +906,16 @@ int8_t trajMode(){
 		case 4:
 			machine.pushTarget(Position(0,CellWidth/2,0), new MotionLinear(new EasingTrap()), p_ministraight);
 			break;
+		case 5:
+			for (uint8_t i = 0; i < 20; ++i) {
+				machine.pushTargetDiff(Position(0.f,0.f,PI), new MotionTurn(new EasingPoly5()), p_miniturn);
+			}
+			break;
+		case 6:
+			for (uint8_t i = 0; i < 20; ++i) {
+				machine.pushTargetDiff(Position(0.f,0.f,-PI), new MotionTurn(new EasingPoly5()), p_miniturn);
+			}
+			break;
 		default:
 			break;
 	}
@@ -890,7 +949,7 @@ void runMode(){
 		case 1:  result=searchRunMode(); break;
 		case 2:  result=fastRunMode(true, true); break;
 		case 3:  result=fastRunMode(false, true); break;
-		case 4:  return;//result=fastRunMode(true, true); break;
+		case 4:  result=searchRunMode(true); break;
 		case 5:  return;//result=fastRunMode(true, false); break;
 		case 6:  result=trajMode(); break;
 		default: break;
@@ -926,6 +985,52 @@ void goalSetMode(){
 	uint8_t gy = modeSelect(32);
 	playErrorSound();
 	maze.setGoal(gx, gy);
+	backupMaze.setGoal(gx, gy);
+	return;
+}
+
+void selectHalfMode(){
+	using namespace MyMath::Machine;
+	PillarWidth = 6.f;
+	CellWidth = 90.f;
+	RearLength = 23.f+PillarWidth/2.f;
+	InitialY = RearLength-CellWidth/2.f;
+	PreTurnDistance = 20.f;
+	CellRatio = 0.5f;
+	playErrorSound();
+}
+
+void selectClassicMode(){
+	using namespace MyMath::Machine;
+	PillarWidth = 12.f;
+	CellWidth = 180.f;
+	RearLength = 23.f+PillarWidth/2.f;
+	InitialY = RearLength-CellWidth/2.f;
+	PreTurnDistance = 40.f;
+	CellRatio = 1.f;
+	playMario();
+}
+
+void selectQuarterMode(){
+	using namespace MyMath::Machine;
+	PillarWidth = 3.f;
+	CellWidth = 45.f;
+	RearLength = 23.f+PillarWidth/2.f;
+	InitialY = RearLength-CellWidth/2.f;
+	PreTurnDistance = 10.f;
+	CellRatio = 0.25f;
+	playMario();
+}
+
+void sizeModeMenu(){
+	uint8_t mode=modeSelect(3);
+	switch(mode){
+		case 0:  return;
+		case 1:  selectQuarterMode(); return;
+		case 2:  selectHalfMode(); return;
+		case 3:  selectClassicMode(); return;
+		default: break;
+	}
 	return;
 }
 
@@ -936,7 +1041,7 @@ void menu(){
 		case 1:  return runMode();
 		case 2:  return sensorMode();
 		case 3:  return;// sensorMode();
-		case 4:  return;//circuitMode(); return;
+		case 4:  sizeModeMenu(); return;//circuitMode(); return;
 		case 5:  goalSetMode(); return;
 		default: break;
 	}

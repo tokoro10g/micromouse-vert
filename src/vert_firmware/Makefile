@@ -9,7 +9,7 @@ INCLUDE_DIRS  = -I autogen/Drivers/STM32F4xx_HAL_Driver/Inc \
 				-I system \
 				-I .
 FIRMWARE_OPTS = -DUSE_HAL_DRIVER -DSTM32F411xE -DARM_MATH_CM4
-COMPILE_OPTS  = -MD -std=gnu++11 -Og -g3 -ffunction-sections -fpermissive -fdata-sections -fsigned-char -fno-rtti -fno-exceptions -Wall -Wno-write-strings -Wno-unused-but-set-variable -fmessage-length=0 -pipe -fno-threadsafe-statics -flto $(INCLUDE_DIRS) $(BOARD_OPTS) $(FIRMWARE_OPTS)
+COMPILE_OPTS  = -MD -std=gnu++11 -O1 -g3 -ffunction-sections -fpermissive -fdata-sections -fsigned-char -fno-rtti -fno-exceptions -Wall -Wno-write-strings -Wno-unused-but-set-variable -fmessage-length=0 -pipe -fno-threadsafe-statics -flto $(INCLUDE_DIRS) $(BOARD_OPTS) $(FIRMWARE_OPTS)
 TARGETS = $(patsubst %.c,%.o,$(wildcard *.c)) \
 		  $(patsubst %.cpp,%.o,$(wildcard *.cpp)) \
 		  $(patsubst %.cpp,%.o,$(wildcard ../mymath/*.cpp)) \

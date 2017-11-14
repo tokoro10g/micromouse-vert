@@ -30,8 +30,8 @@ namespace Vert{
 			Vert::PIDController<float> motorRController;
 
 			struct State {
-				float x, y, phi, alpha, rx, ry, rphi, rvx, rvy, rw, v, w, wsens;
-				State():x(0),y(0),phi(0),alpha(0),rx(0),ry(0),rphi(0),rvx(0),rvy(0),rw(0),v(0),w(0),wsens(0){}
+				float x, y, phi, rx, ry, rphi, rvx, rvy, rw, v, w, wsens;
+				State():x(0),y(MyMath::Machine::InitialY),phi(0),rx(0),ry(0),rphi(0),rvx(0),rvy(0),rw(0),v(0),w(0),wsens(0){}
 				void update(int16_t vl, int16_t vr) volatile{
 					phi+=wsens/2.f; phi = MyMath::normalized(phi, MyMath::Machine::PIInGyroValue);
 					float phiInRadian=MyMath::Machine::convertGyroValueToMachineRadian((int32_t)phi);
@@ -46,27 +46,27 @@ namespace Vert{
 			int32_t lastVelocity;
 
 			Vert::PIDController<float> angleController;
-			float angleKp;
 			float wallKp;
+			float wallKd;
 			int16_t gyr1X, gyr1Y, gyr1Z, acc1X, acc1Y, acc1Z;
 			int16_t gyr2X, gyr2Y, gyr2Z, acc2X, acc2Y, acc2Z;
 			float gyr1X_offs, gyr2X_offs;
 
-			uint16_t adcValues_lit1[6], adcValues_lit2[6], adcValues_unlit[6];
+			volatile uint16_t adcValues_lit1[6], adcValues_lit2[6], adcValues_unlit[6];
 			volatile uint16_t adcValues[6];
-			uint16_t adcNeutralLF, adcNeutralRF, adcNeutralFR, adcNeutralBAT;
+			volatile uint16_t adcNeutralLF, adcNeutralRF, adcNeutralFR, adcNeutralBAT;
 			uint16_t adcMinRF;
-			uint16_t adcThresholdL, adcThresholdR, adcThresholdFR;
+			volatile uint16_t adcThresholdL, adcThresholdR, adcThresholdFR;
 
 		public:
 			Machine(): htim_{}, tickCounter(0), isActivated_(false), isBlocked_(true),
-				motorLController(110.f, 18879.f, 0.f, dt*2, false),
-				motorRController(100.f, 18737.f, 0.f, dt*2, false),
+				motorLController(120.f, 18879.f, 0.f, dt*2, false),
+				motorRController(110.f, 18837.f, 0.f, dt*2, false),
 				state{},
 				targetSequence(0.001f),
 				lastVelocity(0),
 				angleController(0.00065f, 0.050f, 0.f, dt*4, false),
-				angleKp(500.f), wallKp(0.2f),
+				wallKp(3.f), wallKd(2300.f),
 				gyr1X(0),gyr1Y(0),gyr1Z(0),acc1X(0),acc1Y(0),acc1Z(0),
 				gyr2X(0),gyr2Y(0),gyr2Z(0),acc2X(0),acc2Y(0),acc2Z(0),
 				gyr1X_offs(0),gyr2X_offs(0),
@@ -212,15 +212,14 @@ namespace Vert{
 				using namespace MyMath;
 				using namespace MyMath::Machine;
 
-				float dampingControl = -angleKp*state.v*sin(convertGyroValueToMachineRadian(normalized(state.phi-state.rphi,PIInGyroValue)));
-				float wallAdj = dampingControl;
-				if(fabs(state.v)>2.f && fabs(state.w)<5.f){
+				float wallAdj = -wallKd*(state.v+2.f)*sin(convertGyroValueToMachineRadian(state.phi-state.rphi));
+				if(fabs(state.v)>2.f && fabs(state.w)<5.f && (int16_t)(convertGyroValueToMachineDegree(state.rphi))%90==0 ){
 					if(adcValues[IRSensor::LF]>adcThresholdL && adcValues[IRSensor::RF]>adcThresholdR){
 						wallAdj += -wallKp*signof(state.v)*(adcValues[IRSensor::LF]-adcNeutralLF-adcValues[IRSensor::RF]+adcNeutralRF);
 					} else if(adcValues[IRSensor::LF]>adcThresholdL && adcValues[IRSensor::RF]<=adcThresholdR){
-						wallAdj += -wallKp*signof(state.v)*(adcValues[IRSensor::LF]-adcNeutralLF);
+						wallAdj += -2.f*wallKp*signof(state.v)*(adcValues[IRSensor::LF]-adcNeutralLF);
 					} else if(adcValues[IRSensor::RF]>adcThresholdR && adcValues[IRSensor::LF]<=adcThresholdL){
-						wallAdj += -wallKp*signof(state.v)*(-adcValues[IRSensor::RF]+adcNeutralRF);
+						wallAdj += -2.f*wallKp*signof(state.v)*(-adcValues[IRSensor::RF]+adcNeutralRF);
 					}
 				}
 
@@ -298,13 +297,16 @@ namespace Vert{
 			}
 
 			void refreshIMUOffsets(){
-				// TODO: reset IMUs before reading data to perform internal calibration
-				/*
-				// this causes unexpected behavior :(
+				bool tmp_blocked = isBlocked();
+				if(!tmp_blocked) block();
+
 				imu1.reset();
 				imu2.reset();
-				HAL_Delay(1000);
-				*/
+				HAL_Delay(500);
+				imu1.writeInitReg();
+				imu2.writeInitReg();
+				HAL_Delay(500);
+
 				int32_t sum1 = 0;
 				int32_t sum2 = 0;
 				for (uint16_t i = 0; i < 600; ++i) {
@@ -318,6 +320,8 @@ namespace Vert{
 				}
 				gyr1X_offs = (float)sum1/600.f;
 				gyr2X_offs = (float)sum2/600.f;
+
+				if(!tmp_blocked) unblock();
 			}
 
 			void updateADCValues(){
@@ -331,7 +335,17 @@ namespace Vert{
 					if(adcValues_unlit[i] > litVal){
 						adcValues[i]=0;
 					} else {
-						adcValues[i] = litVal - adcValues_unlit[i];
+						using namespace MyMath;
+						if(MyMath::Machine::CellWidth==90.f){
+							// Half-size
+							adcValues[i] = (uint16_t)(MyMath::sqrt((float)litVal - (float)adcValues_unlit[i])*64.f);
+						} else if(MyMath::Machine::CellWidth == 180.f) {
+							// Classic
+							adcValues[i] = (uint16_t)(MyMath::sqrt((float)litVal - (float)adcValues_unlit[i])*90.f);
+						} else {
+							// Quarter-size
+							adcValues[i] = (uint16_t)(MyMath::sqrt((float)litVal - (float)adcValues_unlit[i])*64.f);
+						}
 					}
 				}
 				// for battery
@@ -344,28 +358,44 @@ namespace Vert{
 
 			void setNeutralSideSensorValue(){
 				uint32_t sumLF=0, sumRF=0, sumFR=0, sumBAT=0;
-				for(uint8_t i=0; i<20; i++){
+				for(uint8_t i=0; i<50; i++){
 					sumLF += adcValues[IRSensor::LF];
 					sumRF += adcValues[IRSensor::RF];
 					sumFR += adcValues[IRSensor::FR];
 					sumBAT += adcValues[IRSensor::BAT];
 					HAL_Delay(5);
 				}
-				adcNeutralLF = sumLF / 20;
-				adcNeutralRF = sumRF / 20;
+				adcNeutralLF = sumLF / 50;
+				adcNeutralRF = sumRF / 50;
 				if(adcNeutralRF < adcMinRF) {
 					adcNeutralRF = adcNeutralLF;
 				}
-				adcNeutralFR = sumFR / 20;
-				adcNeutralBAT = sumBAT / 20;
+				adcNeutralFR = sumFR / 50;
+				adcNeutralBAT = sumBAT / 50;
 
-				adcThresholdL = adcNeutralLF - 350;
-				adcThresholdR = adcNeutralRF - 350;
-				adcThresholdFR = adcNeutralFR + 200;
+				if(MyMath::Machine::CellWidth == 90.f){
+					// Half-size
+					adcThresholdL = adcNeutralLF - 200;
+					adcThresholdR = adcNeutralRF - 200;
+					adcThresholdFR = adcNeutralFR + 130;
+				} else if(MyMath::Machine::CellWidth == 180.f) {
+					// Classic
+					adcThresholdL = adcNeutralLF - 100;
+					adcThresholdR = adcNeutralRF + 100;
+					adcThresholdFR = adcNeutralFR + 200;
+				} else {
+					// Quarter-size
+					adcThresholdL = adcNeutralLF - 400;
+					adcThresholdR = adcNeutralRF - 350;
+					adcThresholdFR = adcNeutralFR + 630;
+				}
 			}
 
 			bool isSetWall(uint8_t dir){
 				float ratio = ((float)adcValues[IRSensor::BAT]/(float)adcNeutralBAT);
+				buzzer.addNote(0,1);
+				buzzer.addNote('c', 5, 20);
+				buzzer.play();
 				if((dir&0xf)==0x1){
 					return (adcValues[IRSensor::FR]>adcThresholdFR);
 				} else if((dir&0xf)==0x2){
@@ -408,7 +438,6 @@ namespace Vert{
 				state.rx=state.x;
 				state.ry=state.y;
 				state.rphi=state.phi;
-				state.alpha=0;
 				state.v=0;
 				state.w=0;
 				state.rvx=0;
@@ -440,6 +469,7 @@ namespace Vert{
 
 			void resetTargetSequence(const Trajectory::Position& pos){
 				targetSequence.resetSequence(pos);
+				lastVelocity=0;
 			}
 
 			void startLogging(){ isLogging = true; }

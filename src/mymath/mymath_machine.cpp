@@ -53,4 +53,11 @@ namespace MyMath { namespace Machine {
 				);
 		return mp;
 	}
+	float PillarWidth = 6.f;
+	float CellWidth = 90.f;
+
+	float RearLength = 23.f+PillarWidth/2.f;
+	float InitialY = RearLength-CellWidth/2.f;
+	float PreTurnDistance = 20.f;
+
 } }

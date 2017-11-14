@@ -128,8 +128,7 @@ namespace Vert {
 				return true;
 			}
 
-			bool init(){
-				if(!reset()) return false;
+			bool writeInitReg(){
 				if(!writeReg(17, 0xc9)) return false;
 				if(!writeReg(26, 0x00)) return false;
 				if(!writeReg(27, 0x18)) return false;
@@ -137,6 +136,11 @@ namespace Vert {
 				if(!writeReg(29, 0x04)) return false;
 				if(!writeReg(107, 0x01)) return false;
 				return true;
+			}
+
+			bool init(){
+				if(!reset()) return false;
+				return writeInitReg();
 			}
 
 			void readAccXYZ(int16_t &x, int16_t &y, int16_t &z){

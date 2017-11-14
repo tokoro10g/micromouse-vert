@@ -110,10 +110,12 @@ namespace Trajectory{
 
 			void resetSequence(const Position& pos){
 				lastPosition=pos;
+				lastVelocity = Position(0,0,0);
 				while(!targetQueue.empty()){
 					targetQueue.front().destroy();
 					targetQueue.pop();
 				}
+				timestamp = 0;
 			}
 
 		private:
