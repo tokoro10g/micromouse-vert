@@ -487,7 +487,7 @@ int8_t searchRunMode(bool infinityMode=false){
 			}
 		}
 
-		machine.pushTargetDiff(Position(-CellWidth/2.f*sin(g_angle),CellWidth/2.f*cos(g_angle),0.f), new MotionLinear(new EasingTrap()), p_straight_end);
+		machine.pushTargetDiff(Position(-(CellWidth/2.f-PreTurnDistance)*sin(g_angle),(CellWidth/2.f-PreTurnDistance)*cos(g_angle),0.f), new MotionLinear(new EasingTrap()), p_straight_end);
 		HAL_Delay(3000);
 		playConfirmSound();
 		if(infinityMode){

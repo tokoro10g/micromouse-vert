@@ -103,6 +103,6 @@ namespace Vert {
 
 		private:
 			TIM_HandleTypeDef htim_;
-			constexpr static uint16_t ccr_max = 399;
+			constexpr static uint16_t ccr_max = 499;
 	};
 }
