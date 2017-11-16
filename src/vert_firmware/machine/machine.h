@@ -66,7 +66,7 @@ namespace Vert{
 				targetSequence(0.001f),
 				lastVelocity(0),
 				angleController(0.00065f, 0.050f, 0.f, dt*4, false),
-				wallKp(3.f), wallKd(2300.f),
+				wallKp(4.5f), wallKd(2000.f),
 				gyr1X(0),gyr1Y(0),gyr1Z(0),acc1X(0),acc1Y(0),acc1Z(0),
 				gyr2X(0),gyr2Y(0),gyr2Z(0),acc2X(0),acc2Y(0),acc2Z(0),
 				gyr1X_offs(0),gyr2X_offs(0),
@@ -375,14 +375,14 @@ namespace Vert{
 
 				if(MyMath::Machine::CellWidth == 90.f){
 					// Half-size
-					adcThresholdL = adcNeutralLF - 200;
-					adcThresholdR = adcNeutralRF - 200;
-					adcThresholdFR = adcNeutralFR + 130;
+					adcThresholdL = adcNeutralLF - 250;
+					adcThresholdR = adcNeutralRF - 250;
+					adcThresholdFR = adcNeutralFR + 250;
 				} else if(MyMath::Machine::CellWidth == 180.f) {
 					// Classic
 					adcThresholdL = adcNeutralLF - 100;
-					adcThresholdR = adcNeutralRF + 100;
-					adcThresholdFR = adcNeutralFR + 200;
+					adcThresholdR = adcNeutralRF - 50;
+					adcThresholdFR = adcNeutralFR + 150;
 				} else {
 					// Quarter-size
 					adcThresholdL = adcNeutralLF - 400;
