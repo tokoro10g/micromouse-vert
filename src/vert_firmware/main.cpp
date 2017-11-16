@@ -341,7 +341,11 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 			if(nextIndex==g_index||agent.isPullBack(g_index,nextIndex,g_dir,agent.getDir())){
 				if(straightCount>0){
 					float a=-(float)(straightDir.half==0x2)*PI/2.f-(float)(straightDir.half==0x4)*PI+(float)(straightDir.half==0x8)*PI/2.f;
-					machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+					if(straightCount==1){
+						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingLinear()), p_straight);
+					} else {
+						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+					}
 					straightCount=0;
 				}
 				pullBack();
@@ -374,13 +378,21 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 					straightDir.half = g_dir.half;
 					if(!isVisited){
 						float a=-(float)(straightDir.half==0x2)*PI/2.f-(float)(straightDir.half==0x4)*PI+(float)(straightDir.half==0x8)*PI/2.f;
-						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+						if(straightCount==1){
+							machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingLinear()), p_straight);
+						} else {
+							machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+						}
 						straightCount=0;
 					}
 				} else {
 					if(straightCount>0){
 						float a=-(float)(straightDir.half==0x2)*PI/2.f-(float)(straightDir.half==0x4)*PI+(float)(straightDir.half==0x8)*PI/2.f;
-						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+						if(straightCount==1){
+							machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingLinear()), p_straight);
+						} else {
+							machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+						}
 						straightCount=0;
 					}
 					machine.pushTarget(p, new MotionLinear(new EasingTrap()), p_straight);
@@ -388,7 +400,11 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 			} else {
 				if(straightCount>0){
 					float a=-(float)(straightDir.half==0x2)*PI/2.f-(float)(straightDir.half==0x4)*PI+(float)(straightDir.half==0x8)*PI/2.f;
-					machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+					if(straightCount==1){
+						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingLinear()), p_straight);
+					} else {
+						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+					}
 					straightCount=0;
 				}
 				Position pp = machine.getLastPosition();
@@ -407,7 +423,11 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 			if(nextIndex==g_goal){
 				if(straightCount>0){
 					float a=-(float)(straightDir.half==0x2)*PI/2.f-(float)(straightDir.half==0x4)*PI+(float)(straightDir.half==0x8)*PI/2.f;
-					machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+					if(straightCount==1){
+						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingLinear()), p_straight);
+					} else {
+						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+					}
 					straightCount=0;
 				}
 				backupMaze.replace(maze);

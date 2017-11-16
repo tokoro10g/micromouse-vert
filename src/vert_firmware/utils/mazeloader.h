@@ -13,13 +13,17 @@ class MazeLoader {
 					MazeSolver::CellData cell={0};
 					if(j==0){
 						cell.bits.WEST=1;
+						cell.bits.CHK_WEST=1;
 					} else if(j==w-1){
 						cell.bits.EAST=1;
+						cell.bits.CHK_EAST=1;
 					}
 					if(i==0){
 						cell.bits.SOUTH=1;
+						cell.bits.CHK_SOUTH=1;
 					} else if(i==h-1){
 						cell.bits.NORTH=1;
+						cell.bits.CHK_NORTH=1;
 					}
 					if(i==0&&j==0){
 						cell.bits.EAST=1;
