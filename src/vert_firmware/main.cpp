@@ -455,7 +455,7 @@ int8_t searchRunMode(bool infinityMode=false){
 	uint8_t param=modeSelect(4);
 	if(param==0) return 0;
 
-	int16_t v = 50+param*(50+(CellWidth==180.f)*50);
+	int16_t v = 75+param*(50+(CellWidth==180.f)*50);
 	p_straight_start=Trajectory::Parameters(0,v,v,2000);
 	p_straight=Trajectory::Parameters(v,v,v,2000);
 	p_straight_acc=Trajectory::Parameters(v,v,v+200,700+param*100);
@@ -1047,7 +1047,7 @@ void selectClassicMode(){
 	CellWidth = 180.f;
 	RearLength = 23.f+PillarWidth/2.f;
 	InitialY = RearLength-CellWidth/2.f;
-	PreTurnDistance = 40.f;
+	PreTurnDistance = 45.f;
 	CellRatio = 1.f;
 	playMario();
 }
@@ -1075,13 +1075,36 @@ void sizeModeMenu(){
 	return;
 }
 
+void dumpMaze(MazeSolver::Maze& m){
+	for(int8_t i=maze.getHeight()-1;i>=0;i--){
+		for(uint8_t j=0;j<maze.getWidth();j++){
+			char buf[6];
+			uint8_t d = maze.getCellData(j,i).half;
+			uint8_t cn = sprintf(buf, "%x ", d&0xf);
+			HAL_UART_Transmit(&huart1, buf, cn, 100);
+		}
+		HAL_UART_Transmit(&huart1, "\n", 1, 100);
+	}
+}
+
+void mazeDumpMenu(){
+	uint8_t mode=modeSelect(2);
+	switch(mode){
+		case 0:  return;
+		case 1:  dumpMaze(maze); return;
+		case 2:  dumpMaze(backupMaze); return;
+		default: break;
+	}
+	return;
+}
+
 void menu(){
 	uint8_t mode=modeSelect(5);
 	switch(mode){
 		case 0:  return;
 		case 1:  return runMode();
 		case 2:  return sensorMode();
-		case 3:  return;// sensorMode();
+		case 3:  return mazeDumpMenu();
 		case 4:  sizeModeMenu(); return;//circuitMode(); return;
 		case 5:  goalSetMode(); return;
 		default: break;

@@ -393,9 +393,11 @@ namespace Vert{
 
 			bool isSetWall(uint8_t dir){
 				float ratio = ((float)adcValues[IRSensor::BAT]/(float)adcNeutralBAT);
+				/*
 				buzzer.addNote(0,1);
-				buzzer.addNote('c', 5, 20);
+				buzzer.addNote('c', 6, 10);
 				buzzer.play();
+				*/
 				if((dir&0xf)==0x1){
 					return (adcValues[IRSensor::FR]>adcThresholdFR);
 				} else if((dir&0xf)==0x2){
