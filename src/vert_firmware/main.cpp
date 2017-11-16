@@ -224,6 +224,8 @@ int8_t waitIR(){
 }
 
 void initialiseRun(){
+	graph.loadMaze(&maze);
+
 	agent.setIndex(maze.getWidth()-1);
 	agent.setDir(Maze::DirNorth);
 	agent.reroute();
@@ -333,9 +335,6 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 				if(!further){
 					playErrorSound();
 					machine.deactivate();
-					maze=backupMaze;
-					graph.reset();
-					agent.reroute();
 				}
 				return -2;
 			}
@@ -349,8 +348,13 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 				//flushLog();
 				if(pullBackCount==0) {
 					pullBackCount++;
+					if(further){
+						return -2;
+					}
 					continue;
 				} else {
+					playErrorSound();
+					machine.deactivate();
 					return -3;
 				}
 			} else {
@@ -406,7 +410,7 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 					machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
 					straightCount=0;
 				}
-				backupMaze=maze;
+				backupMaze.replace(maze);
 				return 0;
 			}
 			//flushLog();
@@ -457,12 +461,12 @@ int8_t searchRunMode(bool infinityMode=false){
 				MazeLoader::loadEmpty(32,32,maze.getGoalX(),maze.getGoalY(),maze);
 				graph.loadEmpty(32,32);
 				graph.loadMaze(&maze);
-				graph.resetCost();
+				graph.reset();
 			}
 			playConfirmSound();
 		} else {
-			maze = backupMaze;
 			//flushLog();
+			maze.replace(backupMaze);
 			return -1;
 		}
 
@@ -470,31 +474,47 @@ int8_t searchRunMode(bool infinityMode=false){
 
 		while(1){
 			int16_t tempGoal=agent.searchCandidateNode(maze.getWidth()-1);
-			if(g_index==maze.getWidth()-1 && tempGoal<0){ break; }
 			if(tempGoal<0){
-				backupMaze = maze;
-				tempGoal=maze.getWidth()-1; playEndSound();
+				backupMaze.replace(maze);
+				playEndSound();
+				break;
 			}
 			agent.reroute();
 			int8_t result=procSearch(tempGoal,true);
 			if(result>=0){
 				graph.getNodePointer(tempGoal)->setVisited();
-			}
-			if(result==-1) {
-				maze = backupMaze;
+			} else {
+				if(tempGoal!=maze.getWidth()-1){
+					continue;
+				}
+				//FIXME: enters here for a specific error condition
+				playErrorSound();
+				maze.replace(backupMaze);
+				machine.deactivate();
+				machine.block();
 				//flushLog();
 				return -1;
 			}
 		}
 
-		machine.pushTargetDiff(Position(-(CellWidth/2.f-PreTurnDistance)*sin(g_angle),(CellWidth/2.f-PreTurnDistance)*cos(g_angle),0.f), new MotionLinear(new EasingTrap()), p_straight_end);
+		agent.reroute();
+		if(procSearch(maze.getWidth()-1)!=0) {
+			//flushLog();
+			playErrorSound();
+			maze.replace(backupMaze);
+			machine.deactivate();
+			machine.block();
+			return -1;
+		}
+
+		machine.pushTargetDiff(Position(-CellWidth/2.f*sin(g_angle),CellWidth/2.f*cos(g_angle),0.f), new MotionLinear(new EasingTrap()), p_straight_end);
 		HAL_Delay(3000);
 		playConfirmSound();
 		if(infinityMode){
 			MazeLoader::loadEmpty(32,32,maze.getGoalX(),maze.getGoalY(),maze);
 			graph.loadEmpty(32,32);
 			graph.loadMaze(&maze);
-			graph.resetCost();
+			graph.reset();
 			machine.pushTargetDiff(Position(0.f,0.f,PI), new MotionTurn(new EasingPoly5()), p_miniturn);
 			g_index=maze.getWidth()-1;
 			g_angle=0;
@@ -843,7 +863,7 @@ int8_t fastRunMode(bool useDiagonal, bool wallAdjust){
 	agent.reroute();
 	isEndOfSequence = true;
 	if(procSearch(maze.getWidth()-1)<0) {
-		maze = backupMaze;
+		maze.replace(backupMaze);
 		return -1;
 	}
 
@@ -1121,11 +1141,11 @@ int main(void)
 
 	MazeLoader::loadEmpty(32, 32, 1, 0, maze);
 
-	backupMaze=maze;
+	backupMaze.replace(maze);
 
 	graph.loadEmpty(32,32);
 	graph.loadMaze(&maze);
-	graph.resetCost();
+	graph.reset();
 
 	playBootSound();
 
