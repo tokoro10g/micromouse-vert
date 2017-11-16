@@ -257,7 +257,7 @@ void pullBack(){
 	using namespace Trajectory;
 
 	if(machine.getLastVelocity()!=0){
-		const float d = CellWidth/2.f-PreTurnDistance;
+		const float d = CellWidth/2.f-(PreTurnDistance+PreSensDistance);
 		machine.pushTargetDiff(Position(-d*sin(g_angle),d*cos(g_angle),0.f), new MotionLinear(new EasingTrap()), p_straight_end);
 		//machine.setFrontWallCorrection(true);
 		HAL_Delay(600);
@@ -283,7 +283,7 @@ void pullBack(){
 	//machine.setWallCorrection(true);
 	HAL_Delay(200);
 	//flushLog();
-	machine.pushTargetDiff(Position(-CellWidth/2.f*sin(g_angle+PI),CellWidth/2.f*cos(g_angle+PI),0.f), new MotionLinear(new EasingTrap()), p_straight_start);
+	machine.pushTargetDiff(Position(-(CellWidth/2.f+PreSensDistance)*sin(g_angle+PI),(CellWidth/2.f+PreSensDistance)*cos(g_angle+PI),0.f), new MotionLinear(new EasingTrap()), p_straight_start);
 
 	g_angle=normalized(g_angle+PI,PI);
 	g_dir=agent.getDir();
@@ -369,8 +369,8 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 			Coord c=agent.getCoord();
 			Position p(c.x*CellWidth,c.y*CellWidth,0);
 			p.angle=-(float)(g_dir.half==0x2)*PI/2.f-(float)(g_dir.half==0x4)*PI+(float)(g_dir.half==0x8)*PI/2.f;
-			p.x+=(g_dir.half==0x2)*CellWidth/2.f-(g_dir.half==0x8)*CellWidth/2.f;
-			p.y+=(g_dir.half==0x1)*CellWidth/2.f-(g_dir.half==0x4)*CellWidth/2.f;
+			p.x+=(g_dir.half==0x2)*(CellWidth/2.f+PreSensDistance)-(g_dir.half==0x8)*(CellWidth/2.f+PreSensDistance);
+			p.y+=(g_dir.half==0x1)*(CellWidth/2.f+PreSensDistance)-(g_dir.half==0x4)*(CellWidth/2.f+PreSensDistance);
 #ifndef MAZEDEBUG
 			if(fabs(normalized(g_angle-p.angle,PI))<0.2f){
 				if(isObserved){
@@ -413,8 +413,8 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 				} else {
 					turnCount--;
 				}
-				machine.pushTarget(p-Position(-PreTurnDistance*sin(p.angle),PreTurnDistance*cos(p.angle),0), new MotionSmoothArc(new EasingLinear()), p_turn);
-				machine.pushTargetDiff(Position(-PreTurnDistance*sin(p.angle),PreTurnDistance*cos(p.angle),0), new MotionLinear(new EasingLinear()), p_turn);
+				machine.pushTarget(p-Position(-(PreTurnDistance+2.f*PreSensDistance)*sin(p.angle),(PreTurnDistance+2.f*PreSensDistance)*cos(p.angle),0), new MotionSmoothArc(new EasingLinear()), p_turn);
+				machine.pushTargetDiff(Position(-(PreTurnDistance+2.f*PreSensDistance)*sin(p.angle),(PreTurnDistance+2.f*PreSensDistance)*cos(p.angle),0), new MotionLinear(new EasingLinear()), p_turn);
 				//machine.pushTarget(p, new MotionSmoothArc(new EasingLinear()), p_turn);
 			}
 #endif
@@ -474,7 +474,7 @@ int8_t searchRunMode(bool infinityMode=false){
 	*/
 
 	do {
-		machine.pushTarget(Position(0,CellWidth/2.f,0), new MotionLinear(new EasingTrap()), p_straight_start);
+		machine.pushTarget(Position(0,CellWidth/2.f+PreSensDistance,0), new MotionLinear(new EasingTrap()), p_straight_start);
 
 		if(procSearch(maze.getGoalNodeIndex())==0) {
 			if(infinityMode){
@@ -1035,7 +1035,8 @@ void selectHalfMode(){
 	CellWidth = 90.f;
 	RearLength = 23.f+PillarWidth/2.f;
 	InitialY = RearLength-CellWidth/2.f;
-	PreTurnDistance = 20.f;
+	PreTurnDistance = 10.f;
+	PreSensDistance = 10.f;
 	CellRatio = 0.5f;
 	playErrorSound();
 }

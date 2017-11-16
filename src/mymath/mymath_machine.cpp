@@ -58,6 +58,7 @@ namespace MyMath { namespace Machine {
 
 	float RearLength = 23.f+PillarWidth/2.f;
 	float InitialY = RearLength-CellWidth/2.f;
-	float PreTurnDistance = 20.f;
+	float PreTurnDistance = 15.f;
+	float PreSensDistance = 5.f;
 
 } }

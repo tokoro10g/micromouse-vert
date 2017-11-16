@@ -49,6 +49,7 @@ namespace MyMath { namespace Machine {
 	static const float PulseDiffPerGyroValue = 1.f/GyroValuePerPulseDiff;
 
 	extern float PreTurnDistance;
+	extern float PreSensDistance;
 
 	/* Unit conversion functions */
 	float convertPulseToWheelRadian(int32_t pulse);
