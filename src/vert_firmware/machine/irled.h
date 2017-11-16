@@ -47,12 +47,12 @@ namespace Vert{
 				}
 			}
 
-			void onTimerUpdate(){
+			__attribute__((optimize("-O0"))) void onTimerUpdate(){
 				HAL_TIM_IRQHandler(&htim_);
 				stopPulse();
 			}
 
-			void triggerPulse(){
+			__attribute__((optimize("-O0"))) void triggerPulse(){
 				if(htim_.Instance == TIM10){
 					TIM10->CNT = 0;
 					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
@@ -62,7 +62,7 @@ namespace Vert{
 				}
 			}
 
-			void stopPulse(){
+			__attribute__((optimize("-O0"))) void stopPulse(){
 				if(htim_.Instance == TIM10){
 					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
 				} else if(htim_.Instance == TIM11){
