@@ -25,6 +25,36 @@ namespace Vert {
 				HAL_FLASH_Lock();
 				return true;
 			}
+			bool writeU32(const uint32_t addr, const uint32_t data){
+				bool b = false;
+				if(addr0 + addr > addrf) return false;
+				HAL_FLASH_Unlock();
+				if(HAL_FLASH_Program(TYPEPROGRAM_WORD, addr0 + addr, data) == HAL_OK) b = true;
+				HAL_FLASH_Lock();
+				return b;
+			}
+			bool readU32(const uint32_t addr, uint32_t& data){
+				if(addr0 + addr > addrf) return false;
+				HAL_FLASH_Unlock();
+				data = *reinterpret_cast<volatile uint32_t*>(addr0 + addr);
+				HAL_FLASH_Lock();
+				return true;
+			}
+			bool writeU8(const uint32_t addr, const uint8_t data){
+				bool b = false;
+				if(addr0 + addr > addrf) return false;
+				HAL_FLASH_Unlock();
+				if(HAL_FLASH_Program(TYPEPROGRAM_BYTE, addr0 + addr, data) == HAL_OK) b = true;
+				HAL_FLASH_Lock();
+				return b;
+			}
+			bool readU8(const uint32_t addr, uint8_t& data){
+				if(addr0 + addr > addrf) return false;
+				HAL_FLASH_Unlock();
+				data = *reinterpret_cast<volatile uint8_t*>(addr0 + addr);
+				HAL_FLASH_Lock();
+				return true;
+			}
 			bool writeF32(const uint32_t addr, const float data){
 				bool b = false;
 				if(addr0 + addr > addrf) return false;
@@ -37,7 +67,7 @@ namespace Vert {
 			bool readF32(const uint32_t addr, float& data){
 				if(addr0 + addr > addrf) return false;
 				HAL_FLASH_Unlock();
-				u2f_.u = *reinterpret_cast<uint32_t*>(addr0 + addr);
+				u2f_.u = *reinterpret_cast<volatile uint32_t*>(addr0 + addr);
 				data = u2f_.f;
 				HAL_FLASH_Lock();
 				return true;

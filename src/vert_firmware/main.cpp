@@ -163,6 +163,21 @@ void playEndSound(){
 	buzzer.play();
 }
 
+void saveMazeToFlash(){
+	flash.erase();
+	for (uint16_t i = 0; i < 256; ++i) {
+		uint32_t data = (uint32_t)maze.getCell(i*4).half | ((uint32_t)maze.getCell(i*4+1).half<<8) | ((uint32_t)maze.getCell(i*4+2).half<<16) | ((uint32_t)maze.getCell(i*4+3).half<<24);
+		bool result = flash.writeU32(i*4, data);
+		if(!result){
+			playErrorSound();
+			return;
+		} else {
+			playConfirmSoundUp();
+		}
+	}
+}
+
+
 uint8_t modeSelect(uint8_t max){
 	int8_t val=0;
 	int8_t changed=0;
@@ -430,7 +445,10 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 					}
 					straightCount=0;
 				}
-				backupMaze.replace(maze);
+				if(nextIndex==maze.getGoalNodeIndex()){
+					backupMaze.replace(maze);
+					//saveMazeToFlash();
+				}
 				return 0;
 			}
 			//flushLog();
@@ -550,6 +568,7 @@ int8_t searchRunMode(bool infinityMode=false){
 	machine.deactivate();
 	//flushLog();
 	machine.block();
+	saveMazeToFlash();
 	return 0;
 }
 
@@ -1105,8 +1124,42 @@ void buzzerVolumeMode(){
 	return;
 }
 
+void loadMazeFromFlash(){
+	for (uint16_t i = 0; i < 256; ++i) {
+		uint32_t data;
+		bool result = flash.readU32(i*4, data);
+		if(!result) playErrorSound();
+		MazeSolver::CellData c;
+		c.half = data&0x000000FF;
+		maze.setCell(i*4,c);
+		c.half = (data&0x0000FF00)>>8;
+		maze.setCell(i*4+1,c);
+		c.half = (data&0x00FF0000)>>16;
+		maze.setCell(i*4+2,c);
+		c.half = (data&0xFF000000)>>24;
+		maze.setCell(i*4+3,c);
+	}
+}
+void flashMode(){
+	uint8_t mode = modeSelect(3);
+	if(mode==0) return;
+	else if(mode==1){
+		loadMazeFromFlash();
+		backupMaze.replace(maze);
+		graph.loadEmpty(32,32);
+		graph.loadMaze(&maze);
+		graph.reset();
+	} else if(mode==2){
+		saveMazeToFlash();
+	} else if(mode==3){
+		uint8_t confirm = modeSelect(1);
+		if(mode==0) return;
+		flash.erase();
+	}
+}
+
 void menu(){
-	uint8_t mode=modeSelect(6);
+	uint8_t mode=modeSelect(7);
 	switch(mode){
 		case 0:  return;
 		case 1:  return runMode();
@@ -1115,6 +1168,7 @@ void menu(){
 		case 4:  sizeModeMenu(); return;//circuitMode(); return;
 		case 5:  goalSetMode(); return;
 		case 6:  buzzerVolumeMode(); return;
+		case 7:  flashMode(); return;
 		default: break;
 	}
 	return;

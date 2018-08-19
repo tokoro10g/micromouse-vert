@@ -1,6 +1,7 @@
 #include "encoder.h"
 #include "buzzer.h"
 #include "button.h"
+#include "flash.h"
 #include "leds.h"
 #include "motors.h"
 #include "imu.h"
@@ -9,6 +10,8 @@
 
 Vert::Encoder encoderL(TIM3);
 Vert::Encoder encoderR(TIM4);
+
+Vert::Flash flash;
 
 Vert::Buzzer buzzer;
 Vert::Button button;
