@@ -526,12 +526,12 @@ int8_t searchRunMode(bool infinityMode=false){
 	if(param==0) return 0;
 
 	int16_t v = 75+param*(50+(CellWidth==180.f)*50);
-	p_straight_start=Trajectory::Parameters(0,v,v,2000);
-	p_straight=Trajectory::Parameters(v,v,v,2000);
-	p_straight_acc=Trajectory::Parameters(v,v,v+200,700+param*100);
-	p_straight_end=Trajectory::Parameters(v,0,v,1500);
-	p_turn=Trajectory::Parameters(v,v,v,2000);
-	p_ministraight=Trajectory::Parameters(0,0,v,1000);
+	p_straight_start=Trajectory::Parameters(0,v,v,2500+(CellWidth==180.f)*1000);
+	p_straight=Trajectory::Parameters(v,v,v,2500+(CellWidth==180.f)*1000);
+	p_straight_acc=Trajectory::Parameters(v,v,v+450,700+param*200);
+	p_straight_end=Trajectory::Parameters(v,0,v,2500+(CellWidth==180.f)*1000);
+	p_turn=Trajectory::Parameters(v,v,v,2500+(CellWidth==180.f)*1000);
+	p_ministraight=Trajectory::Parameters(0,0,v,1000+(CellWidth==180.f)*500);
 
 	if(waitIR()<0) return 0;
 	playStartSound2();
