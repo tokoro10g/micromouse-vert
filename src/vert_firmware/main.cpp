@@ -40,6 +40,8 @@ Machine machine;
 
 int16_t turnCount;
 bool isEndOfSequence;
+bool isAfterBuggy;
+bool isAfterGoal;
 
 Maze maze;
 Maze backupMaze;
@@ -316,15 +318,20 @@ void initialiseRun(){
 	machine.setNeutralSideSensorValue();
 	machine.activate();
 	isEndOfSequence = false;
+	isAfterBuggy = false;
+	isAfterGoal = false;
 }
 
-void pullBack(){
+int8_t pullBack(){
 	using namespace MyMath;
 	using namespace MyMath::Machine;
 	using namespace Trajectory;
 
-	if(machine.getLastVelocity()!=0){
-		const float d = CellWidth/2.f-(PreTurnDistance+PreSensDistance);
+	if(machine.getLastVelocity()>=1){
+		float d = CellWidth/2.f-PreTurnDistance;
+        if(isAfterBuggy){
+            d -= 2.f*PreTurnDistance;
+        }
 		machine.pushTargetDiff(Position(-d*sin(g_angle),d*cos(g_angle),0.f), new MotionLinear(new EasingTrap()), p_straight_end);
 		//machine.setFrontWallCorrection(true);
 		HAL_Delay(600);
@@ -338,6 +345,20 @@ void pullBack(){
 	//machine.setFrontWallCorrection(false);
 	//flushLog();
 
+    uint8_t cnt = 0;
+	while(!machine.isTargetSequenceEmpty()){ HAL_Delay(200); cnt++; if(cnt>5){ return -1; } }
+	machine.deactivate();
+
+	if(isAfterGoal){
+		machine.block();
+		saveMazeToFlash();
+		isAfterGoal = false;
+	}
+
+	machine.refreshIMUOffsets();
+	machine.unblock();
+	machine.activate();
+
 	if(turnCount>0) {
 		machine.pushTargetDiff(Position(0,0,-PI), new MotionTurn(new EasingPoly5()), p_miniturn);
 		turnCount-=2;
@@ -350,12 +371,12 @@ void pullBack(){
 	//machine.setWallCorrection(true);
 	HAL_Delay(200);
 	//flushLog();
-	machine.pushTargetDiff(Position(-(CellWidth/2.f+PreSensDistance)*sin(g_angle+PI),(CellWidth/2.f+PreSensDistance)*cos(g_angle+PI),0.f), new MotionLinear(new EasingTrap()), p_straight_start);
+	machine.pushTargetDiff(Position(-CellWidth/2.f*sin(g_angle+PI),CellWidth/2.f*cos(g_angle+PI),0.f), new MotionLinear(new EasingTrap()), p_straight_start);
 
 	g_angle=normalized(g_angle+PI,PI);
 	g_dir=agent.getDir();
 	//machine.enableLog();
-	return;
+	return 0;
 }
 int8_t procSearch(uint16_t _goal, bool further=false){
 	using namespace MyMath;
@@ -403,19 +424,30 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 					playErrorSound();
 					machine.deactivate();
 				}
+                buzzer.addNote(0,1);
+                buzzer.addNote(2093, 80);
+                buzzer.play();
+                isAfterBuggy = true;
 				return -2;
 			}
 			if(nextIndex==g_index||agent.isPullBack(g_index,nextIndex,g_dir,agent.getDir())){
 				if(straightCount>0){
 					float a=-(float)(straightDir.half==0x2)*PI/2.f-(float)(straightDir.half==0x4)*PI+(float)(straightDir.half==0x8)*PI/2.f;
 					if(straightCount==1){
-						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingLinear()), p_straight);
+						machine.pushTargetDiff(Position(-(CellWidth-PreTurnDistance)*sin(a),(CellWidth-PreTurnDistance)*cos(a),0), new MotionLinear(new EasingLinear()), p_straight);
 					} else {
-						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+						machine.pushTargetDiff(Position(-(CellWidth*straightCount-PreTurnDistance)*sin(a),(CellWidth*straightCount-PreTurnDistance)*cos(a),0), new MotionLinear(new EasingTrap()), p_straight_acc);
 					}
 					straightCount=0;
 				}
-				pullBack();
+				if(pullBack() < 0){
+                    playErrorSound();
+                    machine.deactivate();
+				    return -3; 
+				}
+                if(isAfterBuggy){
+                    isAfterBuggy = false;
+                }
 				//flushLog();
 				if(pullBackCount==0) {
 					pullBackCount++;
@@ -435,20 +467,24 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 			g_dir=agent.getDir();
 			Coord c=agent.getCoord();
 			Position p(c.x*CellWidth,c.y*CellWidth,0);
+
+			float d = CellWidth/2.f;
+			// adjust position to the boundary of cells
 			p.angle=-(float)(g_dir.half==0x2)*PI/2.f-(float)(g_dir.half==0x4)*PI+(float)(g_dir.half==0x8)*PI/2.f;
-			p.x+=(g_dir.half==0x2)*(CellWidth/2.f+PreSensDistance)-(g_dir.half==0x8)*(CellWidth/2.f+PreSensDistance);
-			p.y+=(g_dir.half==0x1)*(CellWidth/2.f+PreSensDistance)-(g_dir.half==0x4)*(CellWidth/2.f+PreSensDistance);
+			p.x+=(g_dir.half==0x2)*d-(g_dir.half==0x8)*d;
+			p.y+=(g_dir.half==0x1)*d-(g_dir.half==0x4)*d;
 #ifndef MAZEDEBUG
 			if(fabs(normalized(g_angle-p.angle,PI))<0.2f){
+				// straight path
 				if(isObserved){
 					straightCount++;
 					straightDir.half = g_dir.half;
 					if(!isVisited){
 						float a=-(float)(straightDir.half==0x2)*PI/2.f-(float)(straightDir.half==0x4)*PI+(float)(straightDir.half==0x8)*PI/2.f;
 						if(straightCount==1){
-							machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingLinear()), p_straight);
+							machine.pushTargetDiff(Position(-(CellWidth-PreTurnDistance)*sin(a),(CellWidth-PreTurnDistance)*cos(a),0), new MotionLinear(new EasingLinear()), p_straight);
 						} else {
-							machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+							machine.pushTargetDiff(Position(-(CellWidth*straightCount-PreTurnDistance)*sin(a),(CellWidth*straightCount-PreTurnDistance)*cos(a),0), new MotionLinear(new EasingTrap()), p_straight_acc);
 						}
 						straightCount=0;
 					}
@@ -456,33 +492,32 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 					if(straightCount>0){
 						float a=-(float)(straightDir.half==0x2)*PI/2.f-(float)(straightDir.half==0x4)*PI+(float)(straightDir.half==0x8)*PI/2.f;
 						if(straightCount==1){
-							machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingLinear()), p_straight);
+							machine.pushTargetDiff(Position(-(CellWidth-PreTurnDistance)*sin(a),(CellWidth-PreTurnDistance)*cos(a),0), new MotionLinear(new EasingLinear()), p_straight);
 						} else {
-							machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+							machine.pushTargetDiff(Position(-(CellWidth*straightCount-PreTurnDistance)*sin(a),(CellWidth*straightCount-PreTurnDistance)*cos(a),0), new MotionLinear(new EasingTrap()), p_straight_acc);
 						}
 						straightCount=0;
 					}
-					machine.pushTarget(p, new MotionLinear(new EasingTrap()), p_straight);
+					machine.pushTarget(p, new MotionLinear(new EasingLinear()), p_straight);
 				}
 			} else {
+				// turn
 				if(straightCount>0){
 					float a=-(float)(straightDir.half==0x2)*PI/2.f-(float)(straightDir.half==0x4)*PI+(float)(straightDir.half==0x8)*PI/2.f;
 					if(straightCount==1){
-						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingLinear()), p_straight);
+						machine.pushTargetDiff(Position(-(CellWidth-PreTurnDistance)*sin(a),(CellWidth-PreTurnDistance)*cos(a),0), new MotionLinear(new EasingLinear()), p_straight);
 					} else {
-						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+						machine.pushTargetDiff(Position(-(CellWidth*straightCount-PreTurnDistance)*sin(a),(CellWidth*straightCount-PreTurnDistance)*cos(a),0), new MotionLinear(new EasingTrap()), p_straight_acc);
 					}
 					straightCount=0;
 				}
-				Position pp = machine.getLastPosition();
 				if(signof(normalized(p.angle-g_angle, PI) > 0)){
 					turnCount++;
 				} else {
 					turnCount--;
 				}
-				machine.pushTarget(p-Position(-(PreTurnDistance+2.f*PreSensDistance)*sin(p.angle),(PreTurnDistance+2.f*PreSensDistance)*cos(p.angle),0), new MotionSmoothArc(new EasingLinear()), p_turn);
-				machine.pushTargetDiff(Position(-(PreTurnDistance+2.f*PreSensDistance)*sin(p.angle),(PreTurnDistance+2.f*PreSensDistance)*cos(p.angle),0), new MotionLinear(new EasingLinear()), p_turn);
-				//machine.pushTarget(p, new MotionSmoothArc(new EasingLinear()), p_turn);
+				machine.pushTarget(p-Position(-PreTurnDistance*sin(p.angle),PreTurnDistance*cos(p.angle),0), new MotionSmoothArc(new EasingLinear()), p_turn);
+				machine.pushTarget(p, new MotionLinear(new EasingLinear()), p_turn);
 			}
 #endif
 			g_angle=normalized(p.angle,PI);
@@ -491,9 +526,9 @@ int8_t procSearch(uint16_t _goal, bool further=false){
 				if(straightCount>0){
 					float a=-(float)(straightDir.half==0x2)*PI/2.f-(float)(straightDir.half==0x4)*PI+(float)(straightDir.half==0x8)*PI/2.f;
 					if(straightCount==1){
-						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingLinear()), p_straight);
+						machine.pushTargetDiff(Position(-(CellWidth-PreTurnDistance)*sin(a),(CellWidth-PreTurnDistance)*cos(a),0), new MotionLinear(new EasingLinear()), p_straight);
 					} else {
-						machine.pushTargetDiff(Position(-CellWidth*sin(a)*straightCount,CellWidth*cos(a)*straightCount,0), new MotionLinear(new EasingTrap()), p_straight_acc);
+						machine.pushTargetDiff(Position(-(CellWidth*straightCount-PreTurnDistance)*sin(a),(CellWidth*straightCount-PreTurnDistance)*cos(a),0), new MotionLinear(new EasingTrap()), p_straight_acc);
 					}
 					straightCount=0;
 				}
@@ -544,7 +579,7 @@ int8_t searchRunMode(bool infinityMode=false){
 	*/
 
 	do {
-		machine.pushTarget(Position(0,CellWidth/2.f+PreSensDistance,0), new MotionLinear(new EasingTrap()), p_straight_start);
+		machine.pushTarget(Position(0,CellWidth/2.f,0), new MotionLinear(new EasingTrap()), p_straight_start);
 
 		if(procSearch(maze.getGoalNodeIndex())==0) {
 			if(infinityMode){
@@ -554,6 +589,7 @@ int8_t searchRunMode(bool infinityMode=false){
 				graph.reset();
 			}
 			playConfirmSound();
+			isAfterGoal = true;
 		} else {
 			//flushLog();
 			maze.replace(backupMaze);
