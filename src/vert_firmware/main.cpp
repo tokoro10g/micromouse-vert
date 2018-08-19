@@ -1197,8 +1197,8 @@ void selectHalfMode(){
 	CellWidth = 90.f;
 	RearLength = 23.f+PillarWidth/2.f;
 	InitialY = RearLength-CellWidth/2.f;
-	PreTurnDistance = 10.f;
-	PreSensDistance = 10.f;
+	PreTurnDistance = 17.f;
+	PreSensDistance = 5.f;
 	CellRatio = 0.5f;
 	playErrorSound();
 }
@@ -1209,7 +1209,8 @@ void selectClassicMode(){
 	CellWidth = 180.f;
 	RearLength = 23.f+PillarWidth/2.f;
 	InitialY = RearLength-CellWidth/2.f;
-	PreTurnDistance = 45.f;
+	PreTurnDistance = 20.f;
+	PreSensDistance = 30.f;
 	CellRatio = 1.f;
 	playMario();
 }
@@ -1221,6 +1222,7 @@ void selectQuarterMode(){
 	RearLength = 23.f+PillarWidth/2.f;
 	InitialY = RearLength-CellWidth/2.f;
 	PreTurnDistance = 10.f;
+	PreSensDistance = 0.f;
 	CellRatio = 0.25f;
 	playMario();
 }
