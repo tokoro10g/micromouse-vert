@@ -454,6 +454,9 @@ namespace Vert{
 				state.x = state.rx;
 				state.y = state.ry;
 			}
+			void setStatePhiToReference() {
+				state.phi = state.rphi;
+			}
 
 			uint16_t getLastVelocity() const { return lastVelocity; }
 			Trajectory::Position getLastPosition() const { return targetSequence.getLastPosition(); }

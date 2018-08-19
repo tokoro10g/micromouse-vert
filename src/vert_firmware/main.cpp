@@ -570,7 +570,8 @@ int8_t searchRunMode(bool infinityMode=false){
 
 	if(waitIR()<0) return 0;
 	playStartSound2();
-	HAL_Delay(3000);
+	//playChristmasSound();
+	HAL_Delay(6000);
 
 	initialiseRun();
 	/*
@@ -780,7 +781,8 @@ int8_t fastRunMode(bool useDiagonal, bool wallAdjust){
 
 	if(waitIR()<0) return 0;
 	playStartSound();
-	HAL_Delay(3000);
+	//playChristmasSound();
+	HAL_Delay(6000);
 
 	initialiseRun();
 
@@ -1426,7 +1428,7 @@ int main(void)
 		while(1);
 	}
 
-	MazeLoader::loadEmpty(32, 32, 1, 0, maze);
+	MazeLoader::loadEmpty(32, 32, 9, 9, maze);
 
 	backupMaze.replace(maze);
 
