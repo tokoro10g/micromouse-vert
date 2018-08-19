@@ -60,13 +60,13 @@ namespace Vert{
 
 		public:
 			Machine(): htim_{}, tickCounter(0), isActivated_(false), isBlocked_(true),
-				motorLController(120.f, 18879.f, 0.f, dt*2, false),
+				motorLController(110.f, 18879.f, 0.f, dt*2, false),
 				motorRController(110.f, 18837.f, 0.f, dt*2, false),
 				state{},
 				targetSequence(0.001f),
 				lastVelocity(0),
-				angleController(0.00065f, 0.050f, 0.f, dt*4, false),
-				wallKp(4.5f), wallKd(2000.f),
+				angleController(0.00065f, 0.05f, 0.f, dt*4, false),
+				wallKp(4.2f), wallKd(2000.f),
 				gyr1X(0),gyr1Y(0),gyr1Z(0),acc1X(0),acc1Y(0),acc1Z(0),
 				gyr2X(0),gyr2Y(0),gyr2Z(0),acc2X(0),acc2Y(0),acc2Z(0),
 				gyr1X_offs(0),gyr2X_offs(0),
@@ -248,9 +248,10 @@ namespace Vert{
 					targetUpdated = false;
 					if(isActivated()) {
 						noTargetCount++;
-						state.v = 0;
+						state.v *= 0.98f;
 						if(noTargetCount>50) {
 							noTargetCount=50;
+							state.v = 0;
 							state.w = 0;
 						} else {
 							angleController.update(wallAdj, state.wsens);
@@ -302,14 +303,14 @@ namespace Vert{
 
 				imu1.reset();
 				imu2.reset();
-				HAL_Delay(500);
+				HAL_Delay(200);
 				imu1.writeInitReg();
 				imu2.writeInitReg();
-				HAL_Delay(500);
+				HAL_Delay(200);
 
 				int32_t sum1 = 0;
 				int32_t sum2 = 0;
-				for (uint16_t i = 0; i < 600; ++i) {
+				for (uint16_t i = 0; i < 400; ++i) {
 					int16_t offs1X, offs1Y, offs1Z = 0;
 					int16_t offs2X, offs2Y, offs2Z = 0;
 					imu1.readGyrXYZ(offs1X, offs1Y, offs1Z);
@@ -318,8 +319,8 @@ namespace Vert{
 					sum2 += offs2X;
 					HAL_Delay(2);
 				}
-				gyr1X_offs = (float)sum1/600.f;
-				gyr2X_offs = (float)sum2/600.f;
+				gyr1X_offs = (float)sum1/400.f;
+				gyr2X_offs = (float)sum2/400.f;
 
 				if(!tmp_blocked) unblock();
 			}
