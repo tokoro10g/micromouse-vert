@@ -1064,6 +1064,67 @@ int8_t trajMode(){
 	return 0;
 }
 
+int8_t circuitMode(){
+	using namespace MyMath;
+	using namespace MyMath::Machine;
+	using namespace Trajectory;
+	//machine.setWallCorrection(false);
+
+	uint8_t param=modeSelect(2);
+	if(param==0) return 0;
+	param+=6;
+
+	p_faststraight_start = pa_faststraight_start[param-1];
+	p_faststraight = pa_faststraight[param-1];
+	p_faststraight_end = pa_faststraight_end[param-1];
+	p_fastturn = pa_fastturn[param-1];
+
+	if(waitIR()<0) return 0;
+	playStartSound();
+	HAL_Delay(4000);
+
+	initialiseRun();
+	//machine.setWallCorrection(true);
+	machine.pushTarget(Position(0,(16-1)*180-270,0), new MotionLinear(new EasingTrap()), p_faststraight_start);
+	machine.pushTarget(Position(270,(16-1)*180,-MyMath::PI/2), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+	machine.pushTarget(Position((8-1)*180-270,(16-1)*180,-MyMath::PI/2), new MotionLinear(new EasingTrap()), p_faststraight);
+	machine.pushTarget(Position((8-1)*180,(16-1)*180-270,-MyMath::PI), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+	machine.pushTarget(Position((8-1)*180,270,-MyMath::PI), new MotionLinear(new EasingTrap()), p_faststraight);
+	machine.pushTarget(Position((8-1)*180-270,0,MyMath::PI/2), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+	machine.pushTarget(Position(270,0,MyMath::PI/2), new MotionLinear(new EasingTrap()), p_faststraight);
+	machine.pushTarget(Position(0,270,0), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+	machine.pushTarget(Position(0,(16-1)*180-270,0), new MotionLinear(new EasingTrap()), p_faststraight);
+	machine.pushTarget(Position(270,(16-1)*180,-MyMath::PI/2), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+	machine.pushTarget(Position((8-1)*180-270,(16-1)*180,-MyMath::PI/2), new MotionLinear(new EasingTrap()), p_faststraight);
+	machine.pushTarget(Position((8-1)*180,(16-1)*180-270,-MyMath::PI), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+	machine.pushTarget(Position((8-1)*180,270,-MyMath::PI), new MotionLinear(new EasingTrap()), p_faststraight);
+	machine.pushTarget(Position((8-1)*180-270,0,MyMath::PI/2), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+	machine.pushTarget(Position(270,0,MyMath::PI/2), new MotionLinear(new EasingTrap()), p_faststraight);
+	machine.pushTarget(Position(0,270,0), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+	machine.pushTarget(Position(0,360,0), new MotionLinear(new EasingTrap()), p_faststraight_end);
+
+	while(1){
+		if(!machine.isActivated()){
+			playErrorSound();
+			//flushLog();
+			return -1;
+		}
+		if(machine.isTargetSequenceEmpty()){
+			playEndSound();
+			//playErrorSound();
+			//flushLog();
+			break;
+		}
+		//flushLog();
+		HAL_Delay(20);
+	}
+	HAL_Delay(3000);
+	playConfirmSound();
+	machine.deactivate();
+	//flushLog();
+	return 0;
+}
+
 void runMode(){
 	uint8_t mode=modeSelect(6); int8_t result=0;
 	switch(mode){
@@ -1072,7 +1133,7 @@ void runMode(){
 		case 2:  result=fastRunMode(true, true); break;
 		case 3:  result=fastRunMode(false, true); break;
 		case 4:  result=searchRunMode(true); break;
-		case 5:  return;//result=fastRunMode(true, false); break;
+		case 5:  result=circuitMode(); break;//result=fastRunMode(true, false); break;
 		case 6:  result=trajMode(); break;
 		default: break;
 	}
@@ -1228,7 +1289,7 @@ void menu(){
 		case 1:  return runMode();
 		case 2:  return sensorMode();
 		case 3:  return mazeDumpMenu();
-		case 4:  sizeModeMenu(); return;//circuitMode(); return;
+		case 4:  sizeModeMenu(); return;
 		case 5:  goalSetMode(); return;
 		case 6:  buzzerVolumeMode(); return;
 		case 7:  flashMode(); return;
