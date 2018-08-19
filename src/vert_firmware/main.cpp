@@ -54,6 +54,12 @@ float g_angle = 0;
 
 float CellRatio = 0.5f;
 
+void beep(){
+	buzzer.addNote(0,2);
+	buzzer.addNote('e',5,20);
+	buzzer.play();
+}
+
 void playMario(){
 	buzzer.stop();
 	buzzer.addNote(0, 20);
@@ -160,6 +166,52 @@ void playEndSound(){
 	buzzer.addNote('c', 6, 250);
 	buzzer.addNote(0, 300);
 	buzzer.addNote('c', 7, 150);
+	buzzer.play();
+}
+void playChristmasSound(){
+	buzzer.stop();
+	buzzer.addNote(0, 2);
+	buzzer.addNote('c', 6, 200);
+	buzzer.addNote('f', 6, 100);
+	buzzer.addNote(0, 100);
+	buzzer.addNote('f', 6, 100);
+	buzzer.addNote('g', 6, 100);
+	buzzer.addNote('f', 6, 100);
+	buzzer.addNote('e', 6, 100);
+	buzzer.addNote('d', 6, 100);
+	buzzer.addNote(0, 100);
+	buzzer.addNote('d', 6, 100);
+	buzzer.addNote(0, 100);
+	buzzer.addNote('d', 6, 200);
+	buzzer.addNote('g', 6, 100);
+	buzzer.addNote(0, 100);
+	buzzer.addNote('g', 6, 100);
+	buzzer.addNote('a', 6, 100);
+	buzzer.addNote('g', 6, 100);
+	buzzer.addNote('f', 6, 100);
+	buzzer.addNote('e', 6, 100);
+	buzzer.addNote(0, 100);
+	buzzer.addNote('c', 6, 100);
+	buzzer.addNote(0, 100);
+	buzzer.addNote('c', 6, 200);
+	buzzer.addNote('a', 6, 100);
+	buzzer.addNote(0, 100);
+	buzzer.addNote('a', 6, 100);
+	buzzer.addNote(7459.f/4.f, 100);
+	buzzer.addNote('a', 6, 100);
+	buzzer.addNote('g', 6, 100);
+	buzzer.addNote('f', 6, 100);
+	buzzer.addNote(0, 100);
+	buzzer.addNote('d', 6, 100);
+	buzzer.addNote(0, 100);
+	buzzer.addNote('c', 6, 80);
+	buzzer.addNote(0, 20);
+	buzzer.addNote('c', 6, 80);
+	buzzer.addNote(0, 20);
+	buzzer.addNote('d', 6, 200);
+	buzzer.addNote('g', 6, 250);
+	buzzer.addNote('e', 6, 300);
+	buzzer.addNote('f', 6, 500);
 	buzzer.play();
 }
 
@@ -517,11 +569,22 @@ int8_t searchRunMode(bool infinityMode=false){
 				playEndSound();
 				break;
 			}
+
 			agent.reroute();
 			int8_t result=procSearch(tempGoal,true);
 			if(result>=0){
+                //playConfirmSound();
+                buzzer.addNote(0,1);
+                buzzer.addNote(2093, 80);
+                buzzer.addNote(1568, 80);
+                buzzer.play();
 				graph.getNodePointer(tempGoal)->setVisited();
 			} else {
+                //playConfirmSoundUp();
+                buzzer.addNote(0,1);
+                buzzer.addNote(1568, 80);
+                buzzer.addNote(2093, 80);
+                buzzer.play();
 				if(tempGoal!=maze.getWidth()-1){
 					continue;
 				}
