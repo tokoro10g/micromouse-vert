@@ -213,7 +213,9 @@ namespace Vert{
 				using namespace MyMath::Machine;
 
 				float wallAdj = -wallKd*(state.v+2.f)*sin(convertGyroValueToMachineRadian(state.phi-state.rphi));
-				if(fabs(state.v)>2.f && fabs(state.w)<5.f && (int16_t)(convertGyroValueToMachineDegree(state.rphi))%90==0 ){
+				float tmpa = convertGyroValueToMachineDegree(state.rphi)/90.f;
+				float tmpb = (int16_t)(tmpa);
+				if(fabs(state.v)>4.f && fabs(state.w)<8.f && fabs(tmpa-tmpb)<8.f ){
 					if(adcValues[IRSensor::LF]>adcThresholdL && adcValues[IRSensor::RF]>adcThresholdR){
 						wallAdj += -wallKp*signof(state.v)*(adcValues[IRSensor::LF]-adcNeutralLF-adcValues[IRSensor::RF]+adcNeutralRF);
 					} else if(adcValues[IRSensor::LF]>adcThresholdL && adcValues[IRSensor::RF]<=adcThresholdR){
@@ -342,7 +344,7 @@ namespace Vert{
 							adcValues[i] = (uint16_t)(MyMath::sqrt((float)litVal - (float)adcValues_unlit[i])*64.f);
 						} else if(MyMath::Machine::CellWidth == 180.f) {
 							// Classic
-							adcValues[i] = (uint16_t)(MyMath::sqrt((float)litVal - (float)adcValues_unlit[i])*90.f);
+							adcValues[i] = (uint16_t)(MyMath::sqrt((float)litVal - (float)adcValues_unlit[i])*120.f);
 						} else {
 							// Quarter-size
 							adcValues[i] = (uint16_t)(MyMath::sqrt((float)litVal - (float)adcValues_unlit[i])*64.f);
@@ -378,16 +380,16 @@ namespace Vert{
 					// Half-size
 					adcThresholdL = adcNeutralLF - 250;
 					adcThresholdR = adcNeutralRF - 250;
-					adcThresholdFR = adcNeutralFR + 250;
+					adcThresholdFR = adcNeutralFR + 400;
 				} else if(MyMath::Machine::CellWidth == 180.f) {
 					// Classic
-					adcThresholdL = adcNeutralLF - 100;
-					adcThresholdR = adcNeutralRF - 50;
-					adcThresholdFR = adcNeutralFR + 150;
+					adcThresholdL = adcNeutralLF + 25;
+					adcThresholdR = adcNeutralRF + 25;
+					adcThresholdFR = adcNeutralFR + 80;
 				} else {
 					// Quarter-size
-					adcThresholdL = adcNeutralLF - 400;
-					adcThresholdR = adcNeutralRF - 350;
+					adcThresholdL = adcNeutralLF - 50;
+					adcThresholdR = adcNeutralRF + 50;
 					adcThresholdFR = adcNeutralFR + 630;
 				}
 			}
