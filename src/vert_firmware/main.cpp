@@ -1008,6 +1008,7 @@ int8_t trajMode(){
 			break;
 		case 2:
 			machine.pushTarget(Position(0,CellWidth/2+PreTurnDistance,0), new MotionLinear(new EasingTrap()), p_straight_start);
+			/*
 			for (uint8_t i = 0; i < 3; ++i) {
 				machine.pushTarget(Position(CellWidth/2-PreTurnDistance,CellWidth,-MyMath::PI/2), new MotionSmoothArc(new EasingLinear()), p_turn);
 				machine.pushTarget(Position(CellWidth/2+PreTurnDistance,CellWidth,-MyMath::PI/2), new MotionLinear(new EasingTrap()), p_straight);
@@ -1019,6 +1020,24 @@ int8_t trajMode(){
 				machine.pushTarget(Position(0,CellWidth/2+PreTurnDistance,0), new MotionLinear(new EasingTrap()), p_straight);
 			}
 			machine.pushTarget(Position(0,CellWidth,0), new MotionLinear(new EasingTrap()), p_straight_end);
+			*/
+			machine.pushTarget(Position(0,(16-1)*180-140,0), new MotionLinear(new EasingTrap()), p_faststraight_start);
+			machine.pushTarget(Position(140,(16-1)*180,-MyMath::PI/2), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+			machine.pushTarget(Position((8-1)*180-140,(16-1)*180,-MyMath::PI/2), new MotionLinear(new EasingTrap()), p_faststraight);
+			machine.pushTarget(Position((8-1)*180,(16-1)*180-140,-MyMath::PI), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+			machine.pushTarget(Position((8-1)*180,140,-MyMath::PI), new MotionLinear(new EasingTrap()), p_faststraight);
+			machine.pushTarget(Position((8-1)*180-140,0,MyMath::PI/2), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+			machine.pushTarget(Position(140,0,MyMath::PI/2), new MotionLinear(new EasingTrap()), p_faststraight);
+			machine.pushTarget(Position(0,140,0), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+			machine.pushTarget(Position(0,(16-1)*180-140,0), new MotionLinear(new EasingTrap()), p_faststraight);
+			machine.pushTarget(Position(140,(16-1)*180,-MyMath::PI/2), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+			machine.pushTarget(Position((8-1)*180-140,(16-1)*180,-MyMath::PI/2), new MotionLinear(new EasingTrap()), p_faststraight);
+			machine.pushTarget(Position((8-1)*180,(16-1)*180-140,-MyMath::PI), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+			machine.pushTarget(Position((8-1)*180,140,-MyMath::PI), new MotionLinear(new EasingTrap()), p_faststraight);
+			machine.pushTarget(Position((8-1)*180-140,0,MyMath::PI/2), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+			machine.pushTarget(Position(140,0,MyMath::PI/2), new MotionLinear(new EasingTrap()), p_faststraight);
+			machine.pushTarget(Position(0,140,0), new MotionSmoothArc(new EasingLinear()), p_fastturn);
+			machine.pushTarget(Position(0,360,0), new MotionLinear(new EasingTrap()), p_faststraight_end);
 			break;
 		case 3:
 			machine.pushTarget(Position(0,CellWidth/2,0), new MotionLinear(new EasingTrap()), p_faststraight_start);
