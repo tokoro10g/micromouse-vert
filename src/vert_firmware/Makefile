@@ -49,7 +49,7 @@ bin/main.hex: $(TARGETS)
 	$(OBJCOPY) -O ihex bin/main.elf bin/main.hex
 
 clean:
-	rm -rf *.o *.s bin/* system/*.o machine/*.o control/*.o ../libmazesolver/*.o autogen/Drivers/STM32F4xx_HAL_Driver/Src/*.o ../libmazesolver/*.o ../libmazesolver/libmazesolver_arm_hal.a
-	rm -rf *.d *.s system/*.d machine/*.d control/*.d ../libmazesolver/*.d autogen/Drivers/STM32F4xx_HAL_Driver/Src/*.d ../libmazesolver/*.d
+	rm -rf *.o *.s bin/* system/*.o machine/*.o control/*.o ../libmazesolver/*.o ../libtrajectory/*.o ../libmazesolver/*.o ../mymath/*.o autogen/Drivers/STM32F4xx_HAL_Driver/Src/*.o ../libmazesolver/libmazesolver_arm_hal.a
+	rm -rf *.d *.s system/*.d machine/*.d control/*.d ../libmazesolver/*.d ../libtrajectory/*.d ../mymath/*.d autogen/Drivers/STM32F4xx_HAL_Driver/Src/*.d ../libmazesolver/*.d
 
 -include $(DEPS)
