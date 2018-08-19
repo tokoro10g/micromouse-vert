@@ -1098,8 +1098,15 @@ void mazeDumpMenu(){
 	return;
 }
 
+void buzzerVolumeMode(){
+	uint8_t mode = modeSelect(7);
+	if(mode==0) return;
+	buzzer.setVolume(mode*2);
+	return;
+}
+
 void menu(){
-	uint8_t mode=modeSelect(5);
+	uint8_t mode=modeSelect(6);
 	switch(mode){
 		case 0:  return;
 		case 1:  return runMode();
@@ -1107,6 +1114,7 @@ void menu(){
 		case 3:  return mazeDumpMenu();
 		case 4:  sizeModeMenu(); return;//circuitMode(); return;
 		case 5:  goalSetMode(); return;
+		case 6:  buzzerVolumeMode(); return;
 		default: break;
 	}
 	return;

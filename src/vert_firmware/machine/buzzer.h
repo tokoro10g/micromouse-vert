@@ -13,7 +13,7 @@ namespace Vert {
 	class Buzzer
 	{
 		public:
-			Buzzer():htim_({}),noteBuffer_({}),isPlaying_(false),readPos_(0),writePos_(0){
+			Buzzer():pwm_ccr(5),htim_({}),noteBuffer_({}),isPlaying_(false),readPos_(0),writePos_(0){
 				TIM_ClockConfigTypeDef sClockSourceConfig;
 				TIM_MasterConfigTypeDef sMasterConfig;
 				TIM_OC_InitTypeDef sConfigOC;
@@ -120,9 +120,13 @@ namespace Vert {
 				return (uint16_t)((float)noteFrequencyBase[note-'a'] / (float)(1 << (8-octave)) +0.5f);
 			}
 
+			void setVolume(uint8_t vol){
+				pwm_ccr = vol;
+			}
+
 		private:
 			constexpr static uint8_t noteCnt_ = 255;
-			constexpr static uint8_t pwm_ccr = 1;
+			uint8_t pwm_ccr;
 
 			TIM_HandleTypeDef htim_;
 			Note noteBuffer_[noteCnt_];
